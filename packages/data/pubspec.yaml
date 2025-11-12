@@ -1,4 +1,5 @@
 name: data
+publish_to: "none"
 resolution: workspace
 description: "A new Flutter package project."
 version: 0.0.1
@@ -18,6 +19,9 @@ dependencies:
   # ファイルを保存する安全な場所を見つけるための道具
   path_provider: ^2.1.3
   path: ^1.9.0
+
+  domain:
+    path: ../domain
 
 dev_dependencies:
   flutter_test:
