@@ -11,10 +11,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # driftの本体
+  drift: ^2.18.0
+  # SQLiteをFlutterで動かすためのライブラリ
+  sqlite3_flutter_libs: ^0.5.24
+  # ファイルを保存する安全な場所を見つけるための道具
+  path_provider: ^2.1.3
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+
+  # driftのコード生成器
+  drift_dev: ^2.18.0
+  # おなじみの職人
+  build_runner: ^2.4.11
 
 flutter:
