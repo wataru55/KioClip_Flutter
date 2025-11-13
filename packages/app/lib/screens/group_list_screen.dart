@@ -76,12 +76,12 @@ class _GroupCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 8.0),
       child: Stack(
-        clipBehavior: Clip.none, // 角丸に沿って中身を切り取る
+        clipBehavior: Clip.none, // 子要素が Stack の境界を超えて表示できるようにする
         children: [
           // 1. 下のカード（影の役目）
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFB2D8B2), // 影の色（薄い緑）
+              color: AppStyles.cardBackgroundColor, // 影の色（薄い緑）
               borderRadius: BorderRadius.circular(AppStyles.cornerRadius),
               border: Border.all(
                 color: Colors.black,
@@ -122,7 +122,7 @@ class _GroupCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         '記事数： 0',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),

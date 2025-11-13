@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class AppStyles {
   // このクラスはインスタンス化させないための、プライベートコンストラクタ
   AppStyles._();
@@ -11,4 +13,7 @@ class AppStyles {
   // === Padding & Spacing ===
   static const double edgeAllPadding = 12.0;
   // 他にも余白の定数が必要になったら、ここに追加していく
+
+  // === Color ===
+  static const Color cardBackgroundColor = Color(0xFFB2D8B2);
 }

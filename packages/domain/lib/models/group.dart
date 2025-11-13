@@ -3,6 +3,8 @@ import 'package:uuid/uuid.dart';
 
 part 'group.freezed.dart';
 
+const uuid = Uuid();
+
 @freezed
 class Group with _$Group {
   const factory Group({
@@ -13,6 +15,6 @@ class Group with _$Group {
   }) = _Group;
 
   factory Group.create({required String name}) {
-    return Group(id: Uuid().v4(), name: name);
+    return Group(id: uuid.v4(), name: name);
   }
 }

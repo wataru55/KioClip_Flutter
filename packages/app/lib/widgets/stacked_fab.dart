@@ -16,11 +16,11 @@ class StackedFAB extends StatelessWidget {
           width: 56, // 標準のFABサイズ
           height: 56,
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor, // グリッドの影と同じ色
+            color: Theme.of(context).cardColor, // カードの背景色と同じ色
             shape: BoxShape.circle,
             border: Border.all(
               color: Colors.black,
-              width: AppStyles.borderWidth, // グリッドの定数を使う
+              width: AppStyles.borderWidth,
             ),
           ),
         ),
@@ -30,12 +30,12 @@ class StackedFAB extends StatelessWidget {
           left: -4.0, // ズラす量（横）
           child: FloatingActionButton(
             onPressed: onPressed,
-            elevation: 0, // 標準の影は不要なので0にする
-            backgroundColor: const Color(0xFFB2D8B2), // カードの背景色と合わせる
+            elevation: 0, // 標準の影は不要なので0
+            backgroundColor: AppStyles.cardBackgroundColor,
             shape: const CircleBorder(
               side: BorderSide(
                 color: Colors.black,
-                width: AppStyles.borderWidth, // グリッドの定数を使う
+                width: AppStyles.borderWidth,
               ),
             ),
             child: const Icon(Icons.add),
