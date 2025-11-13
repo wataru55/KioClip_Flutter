@@ -4,6 +4,8 @@ import 'package:app/providers/group_provider.dart';
 import 'package:domain/models/group.dart' as domain;
 
 import 'package:app/widgets/add_group_modal.dart';
+import 'package:app/styles/app_styles.dart';
+import 'package:app/widgets/stacked_fab.dart';
 
 class GroupListScreen extends ConsumerWidget {
   const GroupListScreen({super.key});
@@ -20,20 +22,24 @@ class GroupListScreen extends ConsumerWidget {
             return const Center(child: Text('グループがありません'));
           }
 
-          return ListView.builder(
+          return GridView.builder(
             itemCount: groups.length,
             itemBuilder: (context, index) {
               final group = groups[index];
-              return ListTile(title: Text(group.name));
+              return _GroupCard(group: group);
             },
+
+            padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 5,
+              crossAxisSpacing: 5,
+              childAspectRatio: 1.5,
+            ),
           );
         },
 
         error: (error, stack) {
-          // デバッグのために、コンソールにもエラーを出力すると便利じゃぞ
-          print(error);
-          print(stack);
-
           return Center(
             // エラーオブジェクト(error)の内容をそのまま表示する
             child: Text('エラーが発生しました: $error'),
@@ -43,7 +49,7 @@ class GroupListScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
 
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: StackedFAB(
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -51,10 +57,83 @@ class GroupListScreen extends ConsumerWidget {
             builder: (context) => const AddGroupModal(),
           );
         },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-        ),
-        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+// ==========================================================
+// この画面専用の、プライベートなカードウィジェット
+// ==========================================================
+
+class _GroupCard extends StatelessWidget {
+  const _GroupCard({required this.group});
+
+  final domain.Group group;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+      child: Stack(
+        clipBehavior: Clip.none, // 角丸に沿って中身を切り取る
+        children: [
+          // 1. 下のカード（影の役目）
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFB2D8B2), // 影の色（薄い緑）
+              borderRadius: BorderRadius.circular(AppStyles.cornerRadius),
+              border: Border.all(
+                color: Colors.black,
+                width: AppStyles.borderWidth,
+              ),
+            ),
+          ),
+
+          // 2. 上のカード（コンテンツが乗る）
+          Positioned(
+            top: -8.0,
+            left: -8.0,
+            right: 0.5,
+            bottom: 0.5,
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppStyles.cornerRadius),
+                side: const BorderSide(
+                  color: Colors.black,
+                  width: AppStyles.borderWidth,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        group.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '記事数： 0',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
