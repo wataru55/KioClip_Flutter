@@ -21,3 +21,29 @@ final groupListProvider = FutureProvider<List<domain.Group>>((ref) async {
 
   return domainGroups;
 });
+
+final groupNotifierProvider = AsyncNotifierProvider<GroupNotifier, void>(
+  GroupNotifier.new,
+);
+
+class GroupNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  /// グループを追加する
+  Future<void> addGroup(String name) async {
+    final db = ref.read(databaseProvider);
+
+    // 1. domain層のモデルをfactory constructorを使って生成する
+    final domainGroup = domain.Group.create(name: name);
+
+    // 2. domain層のモデルをDomainToDataGroupMapperでdata層のモデルに変換する
+    final dataGroupCompanion = domainGroup.toDataModel();
+
+    // 3. data層のモデルをinsertする
+    await db.into(db.groups).insert(dataGroupCompanion);
+
+    // 4. グループの一覧を更新する
+    ref.invalidate(groupListProvider);
+  }
+}

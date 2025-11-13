@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'group.freezed.dart';
 
@@ -10,4 +11,8 @@ class Group with _$Group {
     // グループの名前
     required String name,
   }) = _Group;
+
+  factory Group.create({required String name}) {
+    return Group(id: Uuid().v4(), name: name);
+  }
 }

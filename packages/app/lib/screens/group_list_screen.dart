@@ -3,6 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:app/providers/group_provider.dart';
 import 'package:domain/models/group.dart' as domain;
 
+import 'package:app/widgets/add_group_modal.dart';
+
 class GroupListScreen extends ConsumerWidget {
   const GroupListScreen({super.key});
 
@@ -27,9 +29,32 @@ class GroupListScreen extends ConsumerWidget {
           );
         },
 
-        error: (error, stack) => const Center(child: Text('エラーが発生しました')),
+        error: (error, stack) {
+          // デバッグのために、コンソールにもエラーを出力すると便利じゃぞ
+          print(error);
+          print(stack);
+
+          return Center(
+            // エラーオブジェクト(error)の内容をそのまま表示する
+            child: Text('エラーが発生しました: $error'),
+          );
+        },
 
         loading: () => const Center(child: CircularProgressIndicator()),
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (context) => const AddGroupModal(),
+          );
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        child: const Icon(Icons.add),
       ),
     );
   }
