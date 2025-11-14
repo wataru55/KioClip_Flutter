@@ -28,3 +28,13 @@ class Groups extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+// ArticlesとGroupsの多対多関係を表す中間テーブル
+// 各行は1つの記事(article)と1つのグループ(group)の関連付けを表す
+class ArticleGroupRelations extends Table {
+  TextColumn get articleId => text().references(Articles, #id)();
+  TextColumn get groupId => text().references(Groups, #id)();
+
+  @override
+  Set<Column> get primaryKey => {articleId, groupId};
+}

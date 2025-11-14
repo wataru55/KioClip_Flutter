@@ -9,7 +9,7 @@ import 'package:data/src/database/tables.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Articles, Groups])
+@DriftDatabase(tables: [Articles, Groups, ArticleGroupRelations])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
