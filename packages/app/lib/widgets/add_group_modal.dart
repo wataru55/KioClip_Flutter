@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'package:app/providers/group_provider.dart';
+import 'package:app/styles/app_styles.dart';
 
 class AddGroupModal extends HookConsumerWidget {
   const AddGroupModal({super.key});
@@ -28,7 +29,7 @@ class AddGroupModal extends HookConsumerWidget {
             '新しいグループ',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppStyles.sizedBoxHeight),
           TextField(
             controller: textController,
             decoration: const InputDecoration(
@@ -37,7 +38,7 @@ class AddGroupModal extends HookConsumerWidget {
             ),
             autofocus: true, // モーダル表示時に自動でフォーカスを当てる
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppStyles.sizedBoxHeight),
           ElevatedButton(
             // isLoadingがtrueの間はボタンを押せなくする
             onPressed: isLoading.value

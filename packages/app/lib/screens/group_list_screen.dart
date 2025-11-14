@@ -3,9 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:app/providers/group_provider.dart';
 import 'package:domain/models/group.dart' as domain;
 
-import 'package:app/widgets/add_group_modal.dart';
 import 'package:app/styles/app_styles.dart';
-import 'package:app/widgets/stacked_fab.dart';
 
 class GroupListScreen extends ConsumerWidget {
   const GroupListScreen({super.key});
@@ -14,50 +12,37 @@ class GroupListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final groupListAsyncValue = ref.watch(groupListProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('グループ一覧')),
-      body: groupListAsyncValue.when(
-        data: (groups) {
-          if (groups.isEmpty) {
-            return const Center(child: Text('グループがありません'));
-          }
+    return groupListAsyncValue.when(
+      data: (groups) {
+        if (groups.isEmpty) {
+          return const Center(child: Text('グループがありません'));
+        }
 
-          return GridView.builder(
-            itemCount: groups.length,
-            itemBuilder: (context, index) {
-              final group = groups[index];
-              return _GroupCard(group: group);
-            },
+        return GridView.builder(
+          itemCount: groups.length,
+          itemBuilder: (context, index) {
+            final group = groups[index];
+            return _GroupCard(group: group);
+          },
 
-            padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 5,
-              crossAxisSpacing: 5,
-              childAspectRatio: 1.5,
-            ),
-          );
-        },
+          padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 5,
+            crossAxisSpacing: 5,
+            childAspectRatio: 1.5,
+          ),
+        );
+      },
 
-        error: (error, stack) {
-          return Center(
-            // エラーオブジェクト(error)の内容をそのまま表示する
-            child: Text('エラーが発生しました: $error'),
-          );
-        },
+      error: (error, stack) {
+        return Center(
+          // エラーオブジェクト(error)の内容をそのまま表示する
+          child: Text('エラーが発生しました: $error'),
+        );
+      },
 
-        loading: () => const Center(child: CircularProgressIndicator()),
-      ),
-
-      floatingActionButton: StackedFAB(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (context) => const AddGroupModal(),
-          );
-        },
-      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
     );
   }
 }

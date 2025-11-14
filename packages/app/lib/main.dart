@@ -1,6 +1,7 @@
+import 'package:app/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:app/screens/group_list_screen.dart';
+import 'package:app/screens/home_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // ホーム画面を GroupListScreen に差し替える
-      home: const GroupListScreen(),
+      home: const HomeScreen(),
     );
   }
 }
