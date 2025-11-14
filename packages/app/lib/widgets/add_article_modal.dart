@@ -44,7 +44,9 @@ class AddArticleModal extends HookConsumerWidget {
           const SizedBox(height: AppStyles.sizedBoxHeight),
 
           ElevatedButton(
-            onPressed: () => print('a'),
+            onPressed: () {
+              // 未実装：記事の追加処理を実装する
+            },
             child: isLoading.value
                 ? const SizedBox(
                     width: 20,
