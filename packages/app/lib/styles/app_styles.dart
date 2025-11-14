@@ -12,7 +12,9 @@ class AppStyles {
 
   // === Padding & Spacing ===
   static const double edgeAllPadding = 12.0;
-  // 他にも余白の定数が必要になったら、ここに追加していく
+
+  // === Sized Box Height ===
+  static const double sizedBoxHeight = 16.0;
 
   // === Color ===
   static const Color cardBackgroundColor = Color(0xFFB2D8B2);
