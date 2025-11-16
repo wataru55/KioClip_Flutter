@@ -8,6 +8,6 @@ class Ogp with _$Ogp {
     // OGPのタイトル
     required String title,
     // OGPの画像URL
-    required String imageUrl,
+    String? imageUrl,
   }) = _Ogp;
 }
