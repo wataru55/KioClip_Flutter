@@ -19,9 +19,15 @@ class Article with _$Article {
     Ogp? ogp,
   }) = _Article;
 
-  factory Article.create({required String urlString}) {
+  factory Article.create({
+    required String urlString,
+    String Function()? idGenerator,
+    DateTime? now,
+  }) {
+    final generateId = idGenerator ?? const Uuid().v4;
+
     return Article(
-      id: uuid.v4(),
+      id: generateId(),
       urlString: urlString,
       createdAt: DateTime.now(),
     );

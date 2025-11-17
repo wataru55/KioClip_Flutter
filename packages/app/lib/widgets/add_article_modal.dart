@@ -44,7 +44,7 @@ class AddArticleModal extends HookConsumerWidget {
       }
 
       textController.addListener(listener);
-      Listener();
+      listener();
 
       return () => textController.removeListener(listener);
     }, []);

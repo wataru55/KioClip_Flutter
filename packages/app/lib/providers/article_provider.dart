@@ -32,7 +32,7 @@ class ArticleNotifier extends AsyncNotifier<void> {
   }
 
   Future<void> addArticle(String urlString) async {
-    //　処理開始(ローディング)
+    // 処理開始(ローディング)
     state = const AsyncValue.loading();
 
     try {
