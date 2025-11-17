@@ -19,7 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$Ogp {
   // OGPのタイトル
   String get title => throw _privateConstructorUsedError; // OGPの画像URL
-  String get imageUrl => throw _privateConstructorUsedError;
+  String? get imageUrl => throw _privateConstructorUsedError;
 
   /// Create a copy of Ogp
   /// with the given fields replaced by the non-null parameter values.
@@ -32,7 +32,7 @@ abstract class $OgpCopyWith<$Res> {
   factory $OgpCopyWith(Ogp value, $Res Function(Ogp) then) =
       _$OgpCopyWithImpl<$Res, Ogp>;
   @useResult
-  $Res call({String title, String imageUrl});
+  $Res call({String title, String? imageUrl});
 }
 
 /// @nodoc
@@ -48,17 +48,17 @@ class _$OgpCopyWithImpl<$Res, $Val extends Ogp> implements $OgpCopyWith<$Res> {
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? title = null, Object? imageUrl = null}) {
+  $Res call({Object? title = null, Object? imageUrl = freezed}) {
     return _then(
       _value.copyWith(
             title: null == title
                 ? _value.title
                 : title // ignore: cast_nullable_to_non_nullable
                       as String,
-            imageUrl: null == imageUrl
+            imageUrl: freezed == imageUrl
                 ? _value.imageUrl
                 : imageUrl // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as String?,
           )
           as $Val,
     );
@@ -71,7 +71,7 @@ abstract class _$$OgpImplCopyWith<$Res> implements $OgpCopyWith<$Res> {
       __$$OgpImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String title, String imageUrl});
+  $Res call({String title, String? imageUrl});
 }
 
 /// @nodoc
@@ -84,17 +84,17 @@ class __$$OgpImplCopyWithImpl<$Res> extends _$OgpCopyWithImpl<$Res, _$OgpImpl>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? title = null, Object? imageUrl = null}) {
+  $Res call({Object? title = null, Object? imageUrl = freezed}) {
     return _then(
       _$OgpImpl(
         title: null == title
             ? _value.title
             : title // ignore: cast_nullable_to_non_nullable
                   as String,
-        imageUrl: null == imageUrl
+        imageUrl: freezed == imageUrl
             ? _value.imageUrl
             : imageUrl // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as String?,
       ),
     );
   }
@@ -103,14 +103,14 @@ class __$$OgpImplCopyWithImpl<$Res> extends _$OgpCopyWithImpl<$Res, _$OgpImpl>
 /// @nodoc
 
 class _$OgpImpl implements _Ogp {
-  const _$OgpImpl({required this.title, required this.imageUrl});
+  const _$OgpImpl({required this.title, this.imageUrl});
 
   // OGPのタイトル
   @override
   final String title;
   // OGPの画像URL
   @override
-  final String imageUrl;
+  final String? imageUrl;
 
   @override
   String toString() {
@@ -140,16 +140,14 @@ class _$OgpImpl implements _Ogp {
 }
 
 abstract class _Ogp implements Ogp {
-  const factory _Ogp({
-    required final String title,
-    required final String imageUrl,
-  }) = _$OgpImpl;
+  const factory _Ogp({required final String title, final String? imageUrl}) =
+      _$OgpImpl;
 
   // OGPのタイトル
   @override
   String get title; // OGPの画像URL
   @override
-  String get imageUrl;
+  String? get imageUrl;
 
   /// Create a copy of Ogp
   /// with the given fields replaced by the non-null parameter values.
