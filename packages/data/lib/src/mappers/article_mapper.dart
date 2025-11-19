@@ -1,4 +1,3 @@
-import 'package:data/data.dart';
 import 'package:data/src/database/app_database.dart' as data;
 import 'package:domain/models/article.dart' as domain;
 import 'package:domain/models/ogp.dart' as domain_ogp;
