@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:app/providers/article_provider.dart';
 import 'package:domain/models/article.dart' as domain;
 import 'package:app/styles/app_styles.dart';
+import 'package:app/utils/article_utils.dart';
 
 class ArticleListScreen extends ConsumerWidget {
   const ArticleListScreen({super.key});
@@ -18,7 +19,6 @@ class ArticleListScreen extends ConsumerWidget {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
           itemCount: articles.length,
           itemBuilder: (context, index) {
             final article = articles[index];
@@ -43,29 +43,98 @@ class _ArticleCard extends StatelessWidget {
 
   final domain.Article article;
 
+  /// サムネイル画像を構築する
+  Widget _buildThumbnail() {
+    if (article.ogp?.imageUrl != null) {
+      return Image.network(
+        article.ogp!.imageUrl!,
+        width: AppStyles.articleThumbnailWidth,
+        height: AppStyles.articleThumbnailHeight,
+        fit: BoxFit.fill,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder();
+        },
+      );
+    }
+    return _buildPlaceholder();
+  }
+
+  /// プレースホルダー画像を構築する
+  Widget _buildPlaceholder() {
+    return Container(
+      width: AppStyles.articleThumbnailWidth,
+      height: AppStyles.articleThumbnailHeight,
+      color: AppStyles.articleThumbnailPlaceholderColor,
+      child: const Icon(Icons.public, size: AppStyles.articleThumbnailIconSize),
+    );
+  }
+
+  /// タイトルを構築する
+  Widget _buildTitle() {
+    return Text(
+      article.ogp?.title ?? article.urlString,
+      style: const TextStyle(
+        fontSize: AppStyles.articleTitleFontSize,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 2,
+    );
+  }
+
+  /// メタデータ（ホスト名と日付）を構築する
+  Widget _buildMetadata() {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            ArticleUtils.getHostName(article.urlString),
+            style: const TextStyle(
+              fontSize: AppStyles.articleHostFontSize,
+              color: AppStyles.articleTextSecondaryColor,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+        const SizedBox(width: AppStyles.cardSpacing),
+        Text(
+          ArticleUtils.formatDate(article.createdAt),
+          style: const TextStyle(
+            fontSize: AppStyles.articleDateFontSize,
+            color: AppStyles.articleTextSecondaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: AppStyles.edgeAllPadding),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppStyles.cornerRadius),
-        side: const BorderSide(
-          color: Colors.black,
-          width: AppStyles.borderWidth,
-        ),
-      ),
-      child: ListTile(
-        // TODO: OGP画像を表示する
-        leading: const Icon(Icons.link),
-        title: Text(
-          // OGPがあればそのタイトル、なければURLを表示
-          article.ogp?.title ?? article.urlString,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        // TODO: タップでURLを開く、スワイプで削除などのアクションを実装
-        onTap: () {},
+      margin: const EdgeInsets.only(bottom: AppStyles.cardMarginBottom),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          _buildThumbnail(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTitle(),
+                  const SizedBox(height: AppStyles.cardSpacing),
+                  _buildMetadata(),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
