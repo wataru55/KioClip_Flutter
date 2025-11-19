@@ -4,6 +4,7 @@ import 'package:data/data.dart' as data;
 import 'package:domain/models/article.dart' as domain;
 import 'package:app/providers/database_provider.dart';
 import 'package:app/utils/url_validator.dart';
+import 'package:data/data.dart';
 
 final articleListProvider = FutureProvider<List<domain.Article>>((ref) async {
   final db = ref.watch(databaseProvider);
@@ -44,9 +45,16 @@ class ArticleNotifier extends AsyncNotifier<void> {
 
       final db = ref.read(databaseProvider);
 
+      // domain層のモデルを作成（OGPなしで一旦作成）
       final domainArticle = domain.Article.create(urlString: urlString);
 
-      final dataArticleCompanion = domainArticle.toDataModel();
+      // OGPリポジトリからOGP情報を取得
+      final ogp = await data.OgpRepository.fetchOgp(urlString);
+
+      // OGP情報を含めてArticleを作成し直す
+      final articleWithOgp = domainArticle.copyWith(ogp: ogp);
+
+      final dataArticleCompanion = articleWithOgp.toDataModel();
 
       await db.into(db.articles).insert(dataArticleCompanion);
 
