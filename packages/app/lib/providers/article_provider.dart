@@ -53,4 +53,22 @@ class ArticleNotifier extends AsyncNotifier<void> {
       state = AsyncValue.error(e, stack);
     }
   }
+
+  // 記事を削除する
+  Future<void> deleteArticle(String articleId) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      await (db.delete(
+        db.articles,
+      )..where((article) => article.id.equals(articleId))).go();
+
+      state = const AsyncValue.data(null);
+
+      ref.invalidate(articleListProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
 }

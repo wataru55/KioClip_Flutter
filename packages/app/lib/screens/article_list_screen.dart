@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:app/providers/article_provider.dart';
 import 'package:domain/models/article.dart' as domain;
@@ -38,7 +39,7 @@ class ArticleListScreen extends ConsumerWidget {
 // この画面専用の、プライベートなカードウィジェット
 // ==========================================================
 
-class _ArticleCard extends StatelessWidget {
+class _ArticleCard extends ConsumerWidget {
   const _ArticleCard({required this.article});
 
   final domain.Article article;
@@ -111,30 +112,72 @@ class _ArticleCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: AppStyles.cardMarginBottom),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _buildThumbnail(),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTitle(),
-                  const SizedBox(height: AppStyles.cardSpacing),
-                  _buildMetadata(),
-                ],
-              ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      // ★★★ marginをSlidableの外側に移動 ★★★
+      padding: const EdgeInsets.only(bottom: AppStyles.cardMarginBottom),
+      child: Slidable(
+        startActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (context) async {
+                final notifier = ref.watch(articleNotifierProvider.notifier);
+                await notifier.deleteArticle(article.id);
+              },
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete,
             ),
+          ],
+        ),
+        endActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (context) {
+                // TODO: グループ追加の処理を実装
+              },
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              icon: Icons.folder,
+            ),
+            SlidableAction(
+              onPressed: (context) {
+                // TODO: 通知設定の処理を実装
+              },
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              icon: Icons.notifications,
+            ),
+          ],
+        ),
+        child: Card(
+          // ★★★ Cardのmarginを削除 ★★★
+          margin: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildThumbnail(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTitle(),
+                      const SizedBox(height: AppStyles.cardSpacing),
+                      _buildMetadata(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
