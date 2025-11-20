@@ -4,6 +4,8 @@ import 'package:app/providers/group_provider.dart';
 import 'package:domain/models/group.dart' as domain;
 
 import 'package:app/styles/app_styles.dart';
+import 'package:app/widgets/group_card.dart';
+import 'package:app/screens/article_list_screen.dart';
 
 class GroupListScreen extends ConsumerWidget {
   const GroupListScreen({super.key});
@@ -22,7 +24,16 @@ class GroupListScreen extends ConsumerWidget {
           itemCount: groups.length,
           itemBuilder: (context, index) {
             final group = groups[index];
-            return _GroupCard(group: group);
+            return GroupCard(
+              group: group,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ArticleListScreen(group: group),
+                  ),
+                );
+              },
+            );
           },
 
           padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
@@ -43,83 +54,6 @@ class GroupListScreen extends ConsumerWidget {
       },
 
       loading: () => const Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
-// ==========================================================
-// この画面専用の、プライベートなカードウィジェット
-// ==========================================================
-
-class _GroupCard extends StatelessWidget {
-  const _GroupCard({required this.group});
-
-  final domain.Group group;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-      child: Stack(
-        clipBehavior: Clip.none, // 子要素が Stack の境界を超えて表示できるようにする
-        children: [
-          // 1. 下のカード（影の役目）
-          Container(
-            decoration: BoxDecoration(
-              color: AppStyles.cardBackgroundColor, // 影の色（薄い緑）
-              borderRadius: BorderRadius.circular(AppStyles.cornerRadius),
-              border: Border.all(
-                color: Colors.black,
-                width: AppStyles.borderWidth,
-              ),
-            ),
-          ),
-
-          // 2. 上のカード（コンテンツが乗る）
-          Positioned(
-            top: -8.0,
-            left: -8.0,
-            right: 0.5,
-            bottom: 0.5,
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppStyles.cornerRadius),
-                side: const BorderSide(
-                  color: Colors.black,
-                  width: AppStyles.borderWidth,
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        group.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '記事数： 0',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

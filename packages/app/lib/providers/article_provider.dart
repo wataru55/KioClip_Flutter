@@ -2,6 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:data/data.dart' as data;
 import 'package:domain/models/article.dart' as domain;
 import 'package:app/providers/database_provider.dart';
+import 'package:app/providers/group_provider.dart';
 import 'package:app/utils/url_validator.dart';
 
 final articleListProvider = FutureProvider<List<domain.Article>>((ref) async {
@@ -9,6 +10,15 @@ final articleListProvider = FutureProvider<List<domain.Article>>((ref) async {
 
   return data.ArticleRepository.getAllArticles(db);
 });
+
+/// グループIDでフィルタリングした記事一覧を取得するProvider
+final groupArticleListProvider =
+    FutureProvider.family<List<domain.Article>, String>((ref, groupId) async {
+      final db = ref.watch(databaseProvider);
+
+      // ★★★ Repository経由で取得 ★★★
+      return data.ArticleRepository.getArticlesByGroupId(db, groupId);
+    });
 
 final articleNotifierProvider = AsyncNotifierProvider<ArticleNotifier, void>(
   ArticleNotifier.new,
@@ -49,6 +59,32 @@ class ArticleNotifier extends AsyncNotifier<void> {
       state = const AsyncValue.data(null);
 
       ref.invalidate(articleListProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> addArticleToGroups(
+    String articleId,
+    List<String> groupIds,
+  ) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      await db.transaction(() async {
+        for (final groupId in groupIds) {
+          await data.ArticleRepository.addArticleToGroups(
+            db,
+            articleId,
+            groupId,
+          );
+        }
+      });
+
+      state = const AsyncValue.data(null);
+      ref.invalidate(articleListProvider);
+      ref.invalidate(groupListProvider);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

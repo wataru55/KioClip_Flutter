@@ -3,17 +3,24 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:app/providers/article_provider.dart';
 import 'package:domain/models/article.dart' as domain;
+import 'package:domain/models/group.dart' as domain;
 import 'package:app/styles/app_styles.dart';
 import 'package:app/utils/article_utils.dart';
+import 'package:app/widgets/group_selection_sheet.dart';
 
 class ArticleListScreen extends ConsumerWidget {
-  const ArticleListScreen({super.key});
+  const ArticleListScreen({super.key, this.group});
+
+  final domain.Group? group;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final articleListAsyncValue = ref.watch(articleListProvider);
+    final articleListAsyncValue = group != null
+        ? ref.watch(groupArticleListProvider(group!.id))
+        : ref.watch(articleListProvider);
 
-    return articleListAsyncValue.when(
+    // ★★★ グループ詳細画面として使われる場合はScaffoldでラップ ★★★
+    final content = articleListAsyncValue.when(
       data: (articles) {
         if (articles.isEmpty) {
           return const Center(child: Text('記事がありません'));
@@ -32,6 +39,20 @@ class ArticleListScreen extends ConsumerWidget {
       },
       loading: () => const Center(child: CircularProgressIndicator()),
     );
+
+    // groupIdが指定されている場合はScaffoldでラップ（グループ詳細画面）
+    if (group != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(group!.name), // TODO: グループ名を表示する
+          // 戻るボタンは自動で表示される
+        ),
+        body: content,
+      );
+    }
+
+    // groupIdがnullの場合はそのまま返す（HomeScreenのbodyとして使われる）
+    return content;
   }
 }
 
@@ -136,12 +157,25 @@ class _ArticleCard extends ConsumerWidget {
           children: [
             SlidableAction(
               onPressed: (context) {
-                // TODO: グループ追加の処理を実装
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (context) => GroupSelectionSheet(
+                    onGroupsSelected: (groupIds) async {
+                      final notifier = ref.read(
+                        articleNotifierProvider.notifier,
+                      );
+                      await notifier.addArticleToGroups(article.id, groupIds);
+                    },
+                  ),
+                );
               },
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               icon: Icons.folder,
             ),
+
             SlidableAction(
               onPressed: (context) {
                 // TODO: 通知設定の処理を実装
