@@ -85,6 +85,7 @@ class ArticleNotifier extends AsyncNotifier<void> {
       state = const AsyncValue.data(null);
       ref.invalidate(articleListProvider);
       ref.invalidate(groupListProvider);
+      // TODO: groupArticleListProviderを無効化する．
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

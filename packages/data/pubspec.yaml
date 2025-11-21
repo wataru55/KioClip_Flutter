@@ -23,6 +23,9 @@ dependencies:
   # ★★★ OGP取得用のパッケージ ★★★
   ogp_data_extract: ^0.2.2
 
+  # ロギング用のライブラリ
+  logger: ^2.1.0
+
   domain:
     path: ../domain
 

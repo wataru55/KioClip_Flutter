@@ -53,4 +53,16 @@ class ArticleRepository {
           mode: InsertMode.insertOrIgnore,
         );
   }
+
+  /// 記事IDからその記事が属しているグループIDのリストを取得
+  static Future<List<String>> getGroupIdsByArticleId(
+    data_db.AppDatabase db,
+    String articleId,
+  ) async {
+    final relations = await (db.select(
+      db.articleGroupRelations,
+    )..where((relation) => relation.articleId.equals(articleId))).get();
+
+    return relations.map((relation) => relation.groupId).toList();
+  }
 }

@@ -72,7 +72,7 @@ class _ArticleCard extends ConsumerWidget {
         article.ogp!.imageUrl!,
         width: AppStyles.articleThumbnailWidth,
         height: AppStyles.articleThumbnailHeight,
-        fit: BoxFit.fill,
+        fit: BoxFit.fitWidth,
         errorBuilder: (context, error, stackTrace) {
           return _buildPlaceholder();
         },
@@ -134,6 +134,8 @@ class _ArticleCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final articleNotifier = ref.watch(articleNotifierProvider.notifier);
+
     return Padding(
       // ★★★ marginをSlidableの外側に移動 ★★★
       padding: const EdgeInsets.only(bottom: AppStyles.cardMarginBottom),
@@ -143,8 +145,7 @@ class _ArticleCard extends ConsumerWidget {
           children: [
             SlidableAction(
               onPressed: (context) async {
-                final notifier = ref.watch(articleNotifierProvider.notifier);
-                await notifier.deleteArticle(article.id);
+                await articleNotifier.deleteArticle(article.id);
               },
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -163,10 +164,10 @@ class _ArticleCard extends ConsumerWidget {
                   useSafeArea: true,
                   builder: (context) => GroupSelectionSheet(
                     onGroupsSelected: (groupIds) async {
-                      final notifier = ref.read(
-                        articleNotifierProvider.notifier,
+                      await articleNotifier.addArticleToGroups(
+                        article.id,
+                        groupIds,
                       );
-                      await notifier.addArticleToGroups(article.id, groupIds);
                     },
                   ),
                 );
