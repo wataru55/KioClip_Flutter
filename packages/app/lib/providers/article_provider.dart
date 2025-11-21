@@ -1,25 +1,24 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:drift/drift.dart';
 import 'package:data/data.dart' as data;
 import 'package:domain/models/article.dart' as domain;
 import 'package:app/providers/database_provider.dart';
+import 'package:app/providers/group_provider.dart';
 import 'package:app/utils/url_validator.dart';
 
 final articleListProvider = FutureProvider<List<domain.Article>>((ref) async {
   final db = ref.watch(databaseProvider);
 
-  // データベースから全記事を取得（作成日時の降順でソート）
-  final dataArticles = await (db.select(
-    db.articles,
-  )..orderBy([(article) => OrderingTerm.desc(article.createdAt)])).get();
-
-  // data層のモデルをdomain層のモデルに変換
-  final domainArticles = dataArticles
-      .map((dataArticle) => dataArticle.toDomainModel())
-      .toList();
-
-  return domainArticles;
+  return data.ArticleRepository.getAllArticles(db);
 });
+
+/// グループIDでフィルタリングした記事一覧を取得するProvider
+final groupArticleListProvider =
+    FutureProvider.family<List<domain.Article>, String>((ref, groupId) async {
+      final db = ref.watch(databaseProvider);
+
+      // ★★★ Repository経由で取得 ★★★
+      return data.ArticleRepository.getArticlesByGroupId(db, groupId);
+    });
 
 final articleNotifierProvider = AsyncNotifierProvider<ArticleNotifier, void>(
   ArticleNotifier.new,
@@ -44,11 +43,63 @@ class ArticleNotifier extends AsyncNotifier<void> {
 
       final db = ref.read(databaseProvider);
 
+      // domain層のモデルを作成（OGPなしで一旦作成）
       final domainArticle = domain.Article.create(urlString: urlString);
 
-      final dataArticleCompanion = domainArticle.toDataModel();
+      // OGPリポジトリからOGP情報を取得
+      final ogp = await data.OgpRepository.fetchOgp(urlString);
+
+      // OGP情報を含めてArticleを作成し直す
+      final articleWithOgp = domainArticle.copyWith(ogp: ogp);
+
+      final dataArticleCompanion = articleWithOgp.toDataModel();
 
       await db.into(db.articles).insert(dataArticleCompanion);
+
+      state = const AsyncValue.data(null);
+
+      ref.invalidate(articleListProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> addArticleToGroups(
+    String articleId,
+    List<String> groupIds,
+  ) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      await db.transaction(() async {
+        for (final groupId in groupIds) {
+          await data.ArticleRepository.addArticleToGroups(
+            db,
+            articleId,
+            groupId,
+          );
+        }
+      });
+
+      state = const AsyncValue.data(null);
+      ref.invalidate(articleListProvider);
+      ref.invalidate(groupListProvider);
+      // TODO: groupArticleListProviderを無効化する．
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  // 記事を削除する
+  Future<void> deleteArticle(String articleId) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      await (db.delete(
+        db.articles,
+      )..where((article) => article.id.equals(articleId))).go();
 
       state = const AsyncValue.data(null);
 

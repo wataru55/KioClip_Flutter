@@ -15,6 +15,9 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  # ★★★ スワイプアクション用のパッケージ ★★★
+  flutter_slidable: ^3.0.1
+
   domain:
     path: ../domain
   data:

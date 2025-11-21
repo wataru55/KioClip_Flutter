@@ -3,7 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'package:app/providers/article_provider.dart';
-import 'package:app/utils/url_validator.dart';
 import 'package:app/styles/app_styles.dart';
 
 class AddArticleModal extends HookConsumerWidget {
