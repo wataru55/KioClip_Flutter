@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'ogp.freezed.dart';
 
 @freezed
-class Ogp with _$Ogp {
+abstract class Ogp with _$Ogp {
   const factory Ogp({
     // OGPのタイトル
     required String title,

@@ -7,7 +7,7 @@ part 'article.freezed.dart';
 const uuid = Uuid();
 
 @freezed
-class Article with _$Article {
+abstract class Article with _$Article {
   const factory Article({
     // 記事を識別するための一意のID
     required String id,
