@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:app/providers/article_provider.dart';
 import 'package:domain/models/article.dart' as domain;
 import 'package:domain/models/group.dart' as domain;
@@ -8,6 +9,7 @@ import 'package:app/styles/app_styles.dart';
 import 'package:app/utils/article_utils.dart';
 import 'package:app/widgets/group_selection_sheet.dart';
 
+@RoutePage()
 class ArticleListScreen extends ConsumerWidget {
   const ArticleListScreen({super.key, this.group});
 
