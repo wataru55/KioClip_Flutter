@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:app/router/app_router.dart';
 import 'package:app/providers/group_provider.dart';
-import 'package:domain/models/group.dart' as domain;
 
 import 'package:app/styles/app_styles.dart';
 import 'package:app/widgets/group_card.dart';
-import 'package:app/screens/article_list_screen.dart';
 
+@RoutePage()
 class GroupListScreen extends ConsumerWidget {
   const GroupListScreen({super.key});
 
@@ -27,11 +28,7 @@ class GroupListScreen extends ConsumerWidget {
             return GroupCard(
               group: group,
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ArticleListScreen(group: group),
-                  ),
-                );
+                context.router.push(GroupArticleDetailsRoute(group: group));
               },
             );
           },

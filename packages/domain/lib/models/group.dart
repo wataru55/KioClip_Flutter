@@ -6,7 +6,7 @@ part 'group.freezed.dart';
 const uuid = Uuid();
 
 @freezed
-class Group with _$Group {
+abstract class Group with _$Group {
   const factory Group({
     // グループを識別するための一意のID
     required String id,
