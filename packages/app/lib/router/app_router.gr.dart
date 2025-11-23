@@ -121,6 +121,22 @@ class GroupListRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [GroupTabPage]
+class GroupTabRoute extends PageRouteInfo<void> {
+  const GroupTabRoute({List<PageRouteInfo>? children})
+    : super(GroupTabRoute.name, initialChildren: children);
+
+  static const String name = 'GroupTabRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const GroupTabPage();
+    },
+  );
+}
+
+/// generated route for
 /// [HomeScreen]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})

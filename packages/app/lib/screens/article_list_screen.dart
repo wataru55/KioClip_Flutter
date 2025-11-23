@@ -42,19 +42,7 @@ class ArticleListScreen extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
     );
 
-    // groupIdが指定されている場合はScaffoldでラップ（グループ詳細画面）
-    if (group != null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(group!.name), // TODO: グループ名を表示する
-          // 戻るボタンは自動で表示される
-        ),
-        body: content,
-      );
-    }
-
-    // groupIdがnullの場合はそのまま返す（HomeScreenのbodyとして使われる）
-    return content;
+    return Scaffold(body: content);
   }
 }
 

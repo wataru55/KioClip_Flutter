@@ -16,10 +16,23 @@ class AppRouter extends RootStackRouter {
       page: HomeRoute.page,
       initial: true,
       children: [
-        AutoRoute(page: GroupListRoute.page, path: 'groups'),
+        // ★★★ GroupTab（ラッパー）を作成し、その中でネストする ★★★
+        AutoRoute(
+          path: 'groups',
+          page: GroupTabRoute.page, // GroupTabRouteを作成
+          children: [
+            AutoRoute(page: GroupListRoute.page, path: '', initial: true),
+            AutoRoute(page: GroupArticleDetailsRoute.page, path: ':groupId'),
+          ],
+        ),
         AutoRoute(page: ArticleListRoute.page, path: 'articles'),
       ],
     ),
-    AutoRoute(page: GroupArticleDetailsRoute.page, path: '/group_details'),
   ];
+}
+
+// ★★★ GroupTab用の空のページを作成（スタックを保持するため） ★★★
+@RoutePage(name: 'GroupTabRoute')
+class GroupTabPage extends AutoRouter {
+  const GroupTabPage({super.key});
 }

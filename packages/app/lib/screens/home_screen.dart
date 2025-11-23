@@ -14,8 +14,27 @@ class HomeScreen extends HookWidget {
   Widget build(BuildContext context) {
     // ★★★ AutoTabsScaffoldを使ってタブナビゲーションを実装 ★★★
     return AutoTabsScaffold(
-      routes: [const GroupListRoute(), ArticleListRoute()],
-      appBarBuilder: (_, tabsRouter) => AppBar(title: const Text('KioClip')),
+      routes: [const GroupTabRoute(), ArticleListRoute()],
+      appBarBuilder: (_, tabsRouter) {
+        // 現在のトップルートを取得
+        final topRoute = tabsRouter.topRoute;
+
+        // 詳細画面の場合
+        if (topRoute.name == GroupArticleDetailsRoute.name) {
+          // argsからGroupオブジェクトを取得してタイトルに表示
+          final args = topRoute.argsAs<GroupArticleDetailsRouteArgs>();
+          return AppBar(
+            title: Text(args.group.name),
+            leading: const AutoLeadingButton(), // 自動で戻るボタンを表示
+          );
+        }
+
+        // 通常のタブ画面の場合
+        return AppBar(
+          title: const Text('KioClip'),
+          leading: null, // 戻るボタンなし
+        );
+      },
       bottomNavigationBuilder: (_, tabsRouter) {
         return BottomNavigationBar(
           items: const [
