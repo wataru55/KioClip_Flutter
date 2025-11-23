@@ -12,62 +12,80 @@ class HomeScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ★★★ AutoTabsScaffoldを使ってタブナビゲーションを実装 ★★★
     return AutoTabsScaffold(
       routes: [const GroupTabRoute(), ArticleListRoute()],
-      appBarBuilder: (_, tabsRouter) {
-        // 現在のトップルートを取得
-        final topRoute = tabsRouter.topRoute;
+      appBarBuilder: _buildAppBar,
+      bottomNavigationBuilder: _buildBottomNavigationBar,
+      floatingActionButtonBuilder: _buildFloatingActionButton,
+    );
+  }
 
-        // 詳細画面の場合
-        if (topRoute.name == GroupArticleDetailsRoute.name) {
-          // argsからGroupオブジェクトを取得してタイトルに表示
-          final args = topRoute.argsAs<GroupArticleDetailsRouteArgs>();
-          return AppBar(
-            title: Text(args.group.name),
-            leading: const AutoLeadingButton(), // 自動で戻るボタンを表示
-          );
-        }
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    TabsRouter tabsRouter,
+  ) {
+    final topRoute = tabsRouter.topRoute;
 
-        // 通常のタブ画面の場合
-        return AppBar(
-          title: const Text('KioClip'),
-          leading: null, // 戻るボタンなし
+    if (topRoute.name == GroupArticleDetailsRoute.name) {
+      final args = topRoute.argsAs<GroupArticleDetailsRouteArgs>();
+      return AppBar(
+        title: Text(args.group.name),
+        leading: const AutoLeadingButton(),
+      );
+    }
+
+    return AppBar(title: const Text('KioClip'), leading: null);
+  }
+
+  Widget _buildBottomNavigationBar(
+    BuildContext context,
+    TabsRouter tabsRouter,
+  ) {
+    return BottomNavigationBar(
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.folder_copy), label: 'グループ'),
+        BottomNavigationBarItem(icon: Icon(Icons.article), label: '記事'),
+      ],
+      currentIndex: tabsRouter.activeIndex,
+      onTap: tabsRouter.setActiveIndex,
+    );
+  }
+
+  Widget _buildFloatingActionButton(
+    BuildContext context,
+    TabsRouter tabsRouter,
+  ) {
+    final topRoute = tabsRouter.topRoute;
+
+    if (topRoute.name == GroupArticleDetailsRoute.name) {
+      return _buildArticleFab(context);
+    }
+
+    return tabsRouter.activeIndex == 0
+        ? _buildGroupFab(context)
+        : _buildArticleFab(context);
+  }
+
+  Widget _buildGroupFab(BuildContext context) {
+    return StackedFAB(
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => const AddGroupModal(),
         );
       },
-      bottomNavigationBuilder: (_, tabsRouter) {
-        return BottomNavigationBar(
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.folder_copy),
-              label: 'グループ',
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.article), label: '記事'),
-          ],
-          currentIndex: tabsRouter.activeIndex,
-          onTap: tabsRouter.setActiveIndex,
+    );
+  }
+
+  Widget _buildArticleFab(BuildContext context) {
+    return StackedFAB(
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => const AddArticleModal(),
         );
-      },
-      floatingActionButtonBuilder: (_, tabsRouter) {
-        return tabsRouter.activeIndex == 0
-            ? StackedFAB(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => const AddGroupModal(),
-                  );
-                },
-              )
-            : StackedFAB(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => const AddArticleModal(),
-                  );
-                },
-              );
       },
     );
   }
