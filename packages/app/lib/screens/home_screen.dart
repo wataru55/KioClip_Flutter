@@ -34,7 +34,7 @@ class HomeScreen extends HookWidget {
       );
     }
 
-    return AppBar(title: const Text('KioClip'), leading: null);
+    return AppBar(title: const Text('KioClip'));
   }
 
   Widget _buildBottomNavigationBar(

@@ -22,7 +22,7 @@ class AppRouter extends RootStackRouter {
           page: GroupTabRoute.page, // GroupTabRouteを作成
           children: [
             AutoRoute(page: GroupListRoute.page, path: '', initial: true),
-            AutoRoute(page: GroupArticleDetailsRoute.page, path: ':groupId'),
+            AutoRoute(page: GroupArticleDetailsRoute.page, path: 'details'),
           ],
         ),
         AutoRoute(page: ArticleListRoute.page, path: 'articles'),
