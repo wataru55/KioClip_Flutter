@@ -29,7 +29,7 @@ abstract class Article with _$Article {
     return Article(
       id: generateId(),
       urlString: urlString,
-      createdAt: DateTime.now(),
+      createdAt: now ?? DateTime.now(),
     );
   }
 }
