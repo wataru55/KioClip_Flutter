@@ -35,6 +35,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  drift: ^2.18.0
+
   flutter_lints: ^5.0.0
 
   # ★★★ コード生成用 ★★★

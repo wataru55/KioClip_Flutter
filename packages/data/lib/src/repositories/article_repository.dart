@@ -23,12 +23,15 @@ class ArticleRepository {
     String groupId,
   ) async {
     // JOINクエリでグループに属する記事を取得
-    final query = db.select(db.articles).join([
-      innerJoin(
-        db.articleGroupRelations,
-        db.articleGroupRelations.articleId.equalsExp(db.articles.id),
-      ),
-    ])..where(db.articleGroupRelations.groupId.equals(groupId));
+    final query =
+        db.select(db.articles).join([
+            innerJoin(
+              db.articleGroupRelations,
+              db.articleGroupRelations.articleId.equalsExp(db.articles.id),
+            ),
+          ])
+          ..where(db.articleGroupRelations.groupId.equals(groupId))
+          ..orderBy([OrderingTerm.desc(db.articles.createdAt)]);
 
     final rows = await query.get();
 
