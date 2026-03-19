@@ -24,11 +24,13 @@ final articleNotifierProvider = AsyncNotifierProvider<ArticleNotifier, void>(
   ArticleNotifier.new,
 );
 
+final ogpRepositoryProvider = Provider<data.OgpRepository>((ref) {
+  return data.OgpRepository();
+});
+
 class ArticleNotifier extends AsyncNotifier<void> {
   @override
-  Future<void> build() async {
-    // 初期化処理は不要
-  }
+  Future<void> build() async {}
 
   Future<void> addArticle(String urlString) async {
     // 処理開始(ローディング)
@@ -42,12 +44,13 @@ class ArticleNotifier extends AsyncNotifier<void> {
       }
 
       final db = ref.read(databaseProvider);
+      final ogpRepository = ref.read(ogpRepositoryProvider);
 
       // domain層のモデルを作成（OGPなしで一旦作成）
       final domainArticle = domain.Article.create(urlString: urlString);
 
       // OGPリポジトリからOGP情報を取得
-      final ogp = await data.OgpRepository.fetchOgp(urlString);
+      final ogp = await ogpRepository.fetchOgp(urlString);
 
       // OGP情報を含めてArticleを作成し直す
       final articleWithOgp = domainArticle.copyWith(ogp: ogp);
@@ -83,9 +86,9 @@ class ArticleNotifier extends AsyncNotifier<void> {
       });
 
       state = const AsyncValue.data(null);
+
       ref.invalidate(articleListProvider);
       ref.invalidate(groupListProvider);
-      // TODO: groupArticleListProviderを無効化する．
       for (final groupId in groupIds) {
         ref.invalidate(groupArticleListProvider(groupId));
       }
