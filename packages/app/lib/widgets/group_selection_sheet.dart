@@ -15,23 +15,32 @@ class GroupSelectionSheet extends HookConsumerWidget {
     final groupListAsyncValue = ref.watch(groupListProvider);
     final selectedGroupIds = useState<Set<String>>({});
 
+    var groupSelected = selectedGroupIds.value.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 100,
+        leading: TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('キャンセル'),
+        ),
+        centerTitle: true,
         title: const Text('グループを選択'),
         automaticallyImplyLeading: false,
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: selectedGroupIds.value.isNotEmpty
+            onPressed: groupSelected
                 ? () {
                     onGroupsSelected(selectedGroupIds.value.toList());
                     Navigator.of(context).pop();
                   }
                 : null,
-            child: const Text('追加'),
+            child: Text(
+              '追加',
+              style: TextStyle(
+                fontWeight: groupSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
           ),
         ],
       ),
