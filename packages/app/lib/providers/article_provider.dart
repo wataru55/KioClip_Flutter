@@ -91,6 +91,7 @@ class ArticleNotifier extends AsyncNotifier<void> {
       ref.invalidate(groupListProvider);
       for (final groupId in groupIds) {
         ref.invalidate(groupArticleListProvider(groupId));
+        ref.invalidate(groupArticleCountProvider(groupId));
       }
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
