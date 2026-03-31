@@ -32,7 +32,7 @@ class ArticleNotifier extends AsyncNotifier<void> {
   @override
   Future<void> build() async {}
 
-  Future<void> addArticle(String urlString) async {
+  Future<void> addArticle(String urlString, {String? groupId}) async {
     // 処理開始(ローディング)
     state = const AsyncValue.loading();
 
@@ -58,6 +58,17 @@ class ArticleNotifier extends AsyncNotifier<void> {
       final dataArticleCompanion = articleWithOgp.toDataModel();
 
       await db.into(db.articles).insert(dataArticleCompanion);
+
+      // グループIDが指定されている場合、article-group関連を作成
+      if (groupId != null) {
+        await data.ArticleRepository.addArticleToGroups(
+          db,
+          domainArticle.id,
+          groupId,
+        );
+        ref.invalidate(groupArticleListProvider(groupId));
+        ref.invalidate(groupArticleCountProvider(groupId));
+      }
 
       state = const AsyncValue.data(null);
 

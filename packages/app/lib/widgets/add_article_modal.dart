@@ -6,7 +6,9 @@ import 'package:app/providers/article_provider.dart';
 import 'package:app/styles/app_styles.dart';
 
 class AddArticleModal extends HookConsumerWidget {
-  const AddArticleModal({super.key});
+  const AddArticleModal({super.key, this.groupId});
+
+  final String? groupId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -90,7 +92,7 @@ class AddArticleModal extends HookConsumerWidget {
                 ? () {
                     ref
                         .read(articleNotifierProvider.notifier)
-                        .addArticle(textController.text);
+                        .addArticle(textController.text, groupId: groupId);
                   }
                 : null,
             child: isLoading
