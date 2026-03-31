@@ -32,7 +32,7 @@ class ArticleListScreen extends ConsumerWidget {
           itemCount: articles.length,
           itemBuilder: (context, index) {
             final article = articles[index];
-            return _ArticleCard(article: article);
+            return _ArticleCard(article: article, group: group);
           },
         );
       },
@@ -51,9 +51,11 @@ class ArticleListScreen extends ConsumerWidget {
 // ==========================================================
 
 class _ArticleCard extends ConsumerWidget {
-  const _ArticleCard({required this.article});
+  const _ArticleCard({required this.article, this.group});
 
   final domain.Article article;
+  // グループコンテキスト（グループ詳細画面から呼ばれた場合にセット）
+  final domain.Group? group;
 
   /// サムネイル画像を構築する
   Widget _buildThumbnail() {
@@ -135,7 +137,43 @@ class _ArticleCard extends ConsumerWidget {
           children: [
             SlidableAction(
               onPressed: (context) async {
-                await articleNotifier.deleteArticle(article.id);
+                // 削除確認ダイアログを表示
+                final isGroupContext = group != null;
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(isGroupContext ? 'グループから削除' : '記事を削除'),
+                    content: Text(
+                      isGroupContext
+                          ? 'この記事をグループから削除します。\n記事一覧からは削除されません。'
+                          : 'この記事を削除します。\nすべてのグループからも削除されます。',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('キャンセル'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        child: const Text('削除'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed != true) return;
+
+                // グループコンテキストがある場合はグループから削除、なければ記事本体を削除
+                if (isGroupContext) {
+                  await articleNotifier.removeArticleFromGroup(
+                    article.id,
+                    group!.id,
+                  );
+                } else {
+                  await articleNotifier.deleteArticle(article.id);
+                }
               },
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
