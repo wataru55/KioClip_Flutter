@@ -136,8 +136,8 @@ class _ArticleCard extends ConsumerWidget {
           motion: const DrawerMotion(),
           children: [
             SlidableAction(
-              onPressed: (context) async {
-                // 削除確認ダイアログを表示
+              onPressed: (_) async {
+                // 削除確認ダイアログを表示（buildのcontextを使用）
                 final isGroupContext = group != null;
                 final confirmed = await showDialog<bool>(
                   context: context,
@@ -174,6 +174,13 @@ class _ArticleCard extends ConsumerWidget {
                 } else {
                   await articleNotifier.deleteArticle(article.id);
                 }
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(isGroupContext ? 'グループから削除しました' : '記事を削除しました'),
+                    ),
+                  );
+                }
               },
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -196,6 +203,11 @@ class _ArticleCard extends ConsumerWidget {
                         article.id,
                         groupIds,
                       );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('グループに追加しました')),
+                        );
+                      }
                     },
                   ),
                 );
