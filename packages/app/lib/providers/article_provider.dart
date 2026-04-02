@@ -57,17 +57,20 @@ class ArticleNotifier extends AsyncNotifier<void> {
 
       final dataArticleCompanion = articleWithOgp.toDataModel();
 
-      await db.into(db.articles).insert(dataArticleCompanion);
-
-      // グループIDが指定されている場合、article-group関連を作成
+      // グループIDが指定されている場合、記事insertと関連insertをトランザクションでまとめる
       if (groupId != null) {
-        await data.ArticleRepository.addArticleToGroups(
-          db,
-          domainArticle.id,
-          groupId,
-        );
+        await db.transaction(() async {
+          await db.into(db.articles).insert(dataArticleCompanion);
+          await data.ArticleRepository.addArticleToGroups(
+            db,
+            domainArticle.id,
+            groupId,
+          );
+        });
         ref.invalidate(groupArticleListProvider(groupId));
         ref.invalidate(groupArticleCountMapProvider);
+      } else {
+        await db.into(db.articles).insert(dataArticleCompanion);
       }
 
       state = const AsyncValue.data(null);
