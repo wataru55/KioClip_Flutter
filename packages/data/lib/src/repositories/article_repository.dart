@@ -57,17 +57,21 @@ class ArticleRepository {
         );
   }
 
-  /// グループIDに紐づく記事数を返す
-  static Future<int> getArticleCountByGroupId(
+  /// 全グループの記事数を一括取得する（GROUP BY を使った単一クエリ）
+  /// 戻り値: groupId → 記事数 のMap（記事なしのグループはキーなし）
+  static Future<Map<String, int>> getAllGroupArticleCounts(
     data_db.AppDatabase db,
-    String groupId,
   ) async {
+    final groupIdCol = db.articleGroupRelations.groupId;
     final countExp = db.articleGroupRelations.articleId.count();
     final query = db.selectOnly(db.articleGroupRelations)
-      ..addColumns([countExp])
-      ..where(db.articleGroupRelations.groupId.equals(groupId));
-    final result = await query.getSingle();
-    return result.read(countExp) ?? 0;
+      ..addColumns([groupIdCol, countExp])
+      ..groupBy([groupIdCol]);
+    final results = await query.get();
+    return {
+      for (final row in results)
+        row.read(groupIdCol)!: row.read(countExp) ?? 0,
+    };
   }
 
   /// 記事IDからその記事が属しているグループIDのリストを取得

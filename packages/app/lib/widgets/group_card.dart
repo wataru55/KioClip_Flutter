@@ -20,9 +20,9 @@ class GroupCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final articleCountAsync = ref.watch(groupArticleCountProvider(group.id));
-    final articleCount = articleCountAsync.maybeWhen(
-      data: (count) => count,
+    final articleCountMapAsync = ref.watch(groupArticleCountMapProvider);
+    final articleCount = articleCountMapAsync.maybeWhen(
+      data: (countMap) => countMap[group.id] ?? 0,
       orElse: () => 0,
     );
     return Padding(

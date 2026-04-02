@@ -137,7 +137,6 @@ class _ArticleCard extends ConsumerWidget {
           children: [
             SlidableAction(
               onPressed: (_) async {
-                // 削除確認ダイアログを表示（buildのcontextを使用）
                 final isGroupContext = group != null;
                 final confirmed = await showDialog<bool>(
                   context: context,
@@ -177,7 +176,9 @@ class _ArticleCard extends ConsumerWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(isGroupContext ? 'グループから削除しました' : '記事を削除しました'),
+                      content: Text(
+                        isGroupContext ? 'グループから削除しました' : '記事を削除しました',
+                      ),
                     ),
                   );
                 }

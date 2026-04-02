@@ -67,7 +67,7 @@ class ArticleNotifier extends AsyncNotifier<void> {
           groupId,
         );
         ref.invalidate(groupArticleListProvider(groupId));
-        ref.invalidate(groupArticleCountProvider(groupId));
+        ref.invalidate(groupArticleCountMapProvider);
       }
 
       state = const AsyncValue.data(null);
@@ -102,8 +102,8 @@ class ArticleNotifier extends AsyncNotifier<void> {
       ref.invalidate(groupListProvider);
       for (final groupId in groupIds) {
         ref.invalidate(groupArticleListProvider(groupId));
-        ref.invalidate(groupArticleCountProvider(groupId));
       }
+      ref.invalidate(groupArticleCountMapProvider);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -137,8 +137,8 @@ class ArticleNotifier extends AsyncNotifier<void> {
       ref.invalidate(articleListProvider);
       for (final groupId in groupIds) {
         ref.invalidate(groupArticleListProvider(groupId));
-        ref.invalidate(groupArticleCountProvider(groupId));
       }
+      ref.invalidate(groupArticleCountMapProvider);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -158,7 +158,7 @@ class ArticleNotifier extends AsyncNotifier<void> {
       state = const AsyncValue.data(null);
 
       ref.invalidate(groupArticleListProvider(groupId));
-      ref.invalidate(groupArticleCountProvider(groupId));
+      ref.invalidate(groupArticleCountMapProvider);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

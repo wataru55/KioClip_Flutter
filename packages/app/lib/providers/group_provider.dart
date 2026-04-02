@@ -5,10 +5,11 @@ import 'package:domain/models/group.dart' as domain;
 
 import 'package:app/providers/database_provider.dart';
 
-// グループIDごとの記事数を提供するプロバイダー
-final groupArticleCountProvider = FutureProvider.family<int, String>((ref, groupId) async {
+/// 全グループの記事数を一括取得するプロバイダー（N+1問題解消版）
+/// 戻り値: groupId → 記事数 のMap
+final groupArticleCountMapProvider = FutureProvider<Map<String, int>>((ref) async {
   final db = ref.watch(databaseProvider);
-  return data.ArticleRepository.getArticleCountByGroupId(db, groupId);
+  return data.ArticleRepository.getAllGroupArticleCounts(db);
 });
 
 // グループの一覧（List<Group>）を非同期で供給するProvider
