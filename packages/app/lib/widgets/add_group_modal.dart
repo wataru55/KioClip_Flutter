@@ -61,6 +61,9 @@ class AddGroupModal extends HookConsumerWidget {
 
                       // 成功した場合のみモーダルを閉じる
                       if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('グループを追加しました')),
+                        );
                         Navigator.of(context).pop();
                       }
                     } catch (e) {

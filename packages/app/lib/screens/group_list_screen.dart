@@ -32,7 +32,6 @@ class GroupListScreen extends ConsumerWidget {
               },
             );
           },
-
           padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,

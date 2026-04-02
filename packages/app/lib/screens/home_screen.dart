@@ -58,7 +58,8 @@ class HomeScreen extends HookWidget {
     final topRoute = tabsRouter.topRoute;
 
     if (topRoute.name == GroupArticleDetailsRoute.name) {
-      return _buildArticleFab(context);
+      final args = topRoute.argsAs<GroupArticleDetailsRouteArgs>();
+      return _buildArticleFab(context, groupId: args.group.id);
     }
 
     return tabsRouter.activeIndex == 0
@@ -78,13 +79,13 @@ class HomeScreen extends HookWidget {
     );
   }
 
-  Widget _buildArticleFab(BuildContext context) {
+  Widget _buildArticleFab(BuildContext context, {String? groupId}) {
     return StackedFAB(
       onPressed: () {
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          builder: (context) => const AddArticleModal(),
+          builder: (context) => AddArticleModal(groupId: groupId),
         );
       },
     );

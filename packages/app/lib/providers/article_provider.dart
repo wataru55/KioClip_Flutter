@@ -32,7 +32,7 @@ class ArticleNotifier extends AsyncNotifier<void> {
   @override
   Future<void> build() async {}
 
-  Future<void> addArticle(String urlString) async {
+  Future<void> addArticle(String urlString, {String? groupId}) async {
     // 処理開始(ローディング)
     state = const AsyncValue.loading();
 
@@ -57,7 +57,21 @@ class ArticleNotifier extends AsyncNotifier<void> {
 
       final dataArticleCompanion = articleWithOgp.toDataModel();
 
-      await db.into(db.articles).insert(dataArticleCompanion);
+      // グループIDが指定されている場合、記事insertと関連insertをトランザクションでまとめる
+      if (groupId != null) {
+        await db.transaction(() async {
+          await db.into(db.articles).insert(dataArticleCompanion);
+          await data.ArticleRepository.addArticleToGroups(
+            db,
+            domainArticle.id,
+            groupId,
+          );
+        });
+        ref.invalidate(groupArticleListProvider(groupId));
+        ref.invalidate(groupArticleCountMapProvider);
+      } else {
+        await db.into(db.articles).insert(dataArticleCompanion);
+      }
 
       state = const AsyncValue.data(null);
 
@@ -92,24 +106,62 @@ class ArticleNotifier extends AsyncNotifier<void> {
       for (final groupId in groupIds) {
         ref.invalidate(groupArticleListProvider(groupId));
       }
+      ref.invalidate(groupArticleCountMapProvider);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
   }
 
-  // 記事を削除する
+  // 記事を削除する（全体一覧用: 記事本体 + 全 ArticleGroupRelations を削除）
   Future<void> deleteArticle(String articleId) async {
     state = const AsyncValue.loading();
     try {
       final db = ref.read(databaseProvider);
 
-      await (db.delete(
-        db.articles,
-      )..where((article) => article.id.equals(articleId))).go();
+      // 削除前に属するグループIDを取得
+      final groupIds = await data.ArticleRepository.getGroupIdsByArticleId(
+        db,
+        articleId,
+      );
+
+      await db.transaction(() async {
+        // ArticleGroupRelations を先に削除
+        await (db.delete(db.articleGroupRelations)
+              ..where((r) => r.articleId.equals(articleId)))
+            .go();
+        // 記事本体を削除
+        await (db.delete(db.articles)
+              ..where((article) => article.id.equals(articleId)))
+            .go();
+      });
 
       state = const AsyncValue.data(null);
 
       ref.invalidate(articleListProvider);
+      for (final groupId in groupIds) {
+        ref.invalidate(groupArticleListProvider(groupId));
+      }
+      ref.invalidate(groupArticleCountMapProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  // グループから記事を削除する（グループ詳細用: ArticleGroupRelations のみ削除）
+  Future<void> removeArticleFromGroup(String articleId, String groupId) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      await (db.delete(db.articleGroupRelations)
+            ..where((r) => r.articleId.equals(articleId))
+            ..where((r) => r.groupId.equals(groupId)))
+          .go();
+
+      state = const AsyncValue.data(null);
+
+      ref.invalidate(groupArticleListProvider(groupId));
+      ref.invalidate(groupArticleCountMapProvider);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }

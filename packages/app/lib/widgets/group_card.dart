@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:domain/models/group.dart' as domain;
 import 'package:app/styles/app_styles.dart';
+import 'package:app/providers/group_provider.dart';
 
-class GroupCard extends StatelessWidget {
+class GroupCard extends ConsumerWidget {
   const GroupCard({
     super.key,
     required this.group,
@@ -17,7 +19,12 @@ class GroupCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final articleCountMapAsync = ref.watch(groupArticleCountMapProvider);
+    final articleCount = articleCountMapAsync.maybeWhen(
+      data: (countMap) => countMap[group.id] ?? 0,
+      orElse: () => 0,
+    );
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, left: 8.0),
       child: Stack(
@@ -51,7 +58,7 @@ class GroupCard extends StatelessWidget {
               ),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
-                onTap: onTap, // ★★★ 修正：親から渡されたonTapを使用 ★★★
+                onTap: onTap,
                 child: Padding(
                   padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
                   child: Stack(
@@ -75,7 +82,7 @@ class GroupCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '記事数： 0',
+                              '記事数： $articleCount',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[600],

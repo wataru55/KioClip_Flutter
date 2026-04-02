@@ -6,7 +6,9 @@ import 'package:app/providers/article_provider.dart';
 import 'package:app/styles/app_styles.dart';
 
 class AddArticleModal extends HookConsumerWidget {
-  const AddArticleModal({super.key});
+  const AddArticleModal({super.key, this.groupId});
+
+  final String? groupId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,10 +16,18 @@ class AddArticleModal extends HookConsumerWidget {
     final textController = useTextEditingController();
     final errorMessage = useState<String?>(null);
     final isButtonEnabled = useState(false);
+    // 追加ボタンが押されたかどうかを追跡する（起動時の状態遷移と区別するため）
+    final hasSubmitted = useState(false);
 
     ref.listen<AsyncValue<void>>(articleNotifierProvider, (previous, next) {
-      if (next is AsyncData) {
-        if (context.mounted) Navigator.of(context).pop();
+      // ユーザーが追加ボタンを押した後のローディング完了時のみ反応する
+      if (next is AsyncData && previous is AsyncLoading && hasSubmitted.value) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('記事を保存しました')),
+          );
+          Navigator.of(context).pop();
+        }
       }
       // Notifier起因のエラーもローカル状態に反映する
       if (next is AsyncError) {
@@ -88,9 +98,10 @@ class AddArticleModal extends HookConsumerWidget {
           ElevatedButton(
             onPressed: submitAvailable
                 ? () {
+                    hasSubmitted.value = true;
                     ref
                         .read(articleNotifierProvider.notifier)
-                        .addArticle(textController.text);
+                        .addArticle(textController.text, groupId: groupId);
                   }
                 : null,
             child: isLoading
