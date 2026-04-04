@@ -10,12 +10,16 @@ class GroupCard extends ConsumerWidget {
     required this.group,
     this.isSelected = false,
     this.isSelectionMode = false,
+    this.showDeleteButton = false,
+    this.onDeleteTap,
     required this.onTap,
   });
 
   final domain.Group group;
   final bool isSelected;
   final bool isSelectionMode;
+  final bool showDeleteButton;
+  final VoidCallback? onDeleteTap;
   final VoidCallback? onTap;
 
   @override
@@ -91,8 +95,23 @@ class GroupCard extends ConsumerWidget {
                           ],
                         ),
                       ),
+                      if (showDeleteButton)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: IconButton(
+                            onPressed: onDeleteTap,
+                            tooltip: 'グループを削除',
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(
+                              Icons.remove_circle,
+                              color: Colors.red,
+                              size: 24,
+                            ),
+                          ),
+                        )
                       // ★★★ 選択モードかつ選択中の場合にチェックマークを表示 ★★★
-                      if (isSelectionMode && isSelected)
+                      else if (isSelectionMode && isSelected)
                         const Positioned(
                           top: 0,
                           right: 0,
