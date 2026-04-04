@@ -574,16 +574,248 @@ class GroupsCompanion extends UpdateCompanion<Group> {
   }
 }
 
+class $ArticleGroupRelationsTable extends ArticleGroupRelations
+    with TableInfo<$ArticleGroupRelationsTable, ArticleGroupRelation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArticleGroupRelationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _articleIdMeta = const VerificationMeta(
+    'articleId',
+  );
+  @override
+  late final GeneratedColumn<String> articleId = GeneratedColumn<String>(
+    'article_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES articles (id)',
+    ),
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES "groups" (id)',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [articleId, groupId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'article_group_relations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ArticleGroupRelation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('article_id')) {
+      context.handle(
+        _articleIdMeta,
+        articleId.isAcceptableOrUnknown(data['article_id']!, _articleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_articleIdMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {articleId, groupId};
+  @override
+  ArticleGroupRelation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArticleGroupRelation(
+      articleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}article_id'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
+    );
+  }
+
+  @override
+  $ArticleGroupRelationsTable createAlias(String alias) {
+    return $ArticleGroupRelationsTable(attachedDatabase, alias);
+  }
+}
+
+class ArticleGroupRelation extends DataClass
+    implements Insertable<ArticleGroupRelation> {
+  final String articleId;
+  final String groupId;
+  const ArticleGroupRelation({required this.articleId, required this.groupId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['article_id'] = Variable<String>(articleId);
+    map['group_id'] = Variable<String>(groupId);
+    return map;
+  }
+
+  ArticleGroupRelationsCompanion toCompanion(bool nullToAbsent) {
+    return ArticleGroupRelationsCompanion(
+      articleId: Value(articleId),
+      groupId: Value(groupId),
+    );
+  }
+
+  factory ArticleGroupRelation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArticleGroupRelation(
+      articleId: serializer.fromJson<String>(json['articleId']),
+      groupId: serializer.fromJson<String>(json['groupId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'articleId': serializer.toJson<String>(articleId),
+      'groupId': serializer.toJson<String>(groupId),
+    };
+  }
+
+  ArticleGroupRelation copyWith({String? articleId, String? groupId}) =>
+      ArticleGroupRelation(
+        articleId: articleId ?? this.articleId,
+        groupId: groupId ?? this.groupId,
+      );
+  ArticleGroupRelation copyWithCompanion(ArticleGroupRelationsCompanion data) {
+    return ArticleGroupRelation(
+      articleId: data.articleId.present ? data.articleId.value : this.articleId,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArticleGroupRelation(')
+          ..write('articleId: $articleId, ')
+          ..write('groupId: $groupId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(articleId, groupId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArticleGroupRelation &&
+          other.articleId == this.articleId &&
+          other.groupId == this.groupId);
+}
+
+class ArticleGroupRelationsCompanion
+    extends UpdateCompanion<ArticleGroupRelation> {
+  final Value<String> articleId;
+  final Value<String> groupId;
+  final Value<int> rowid;
+  const ArticleGroupRelationsCompanion({
+    this.articleId = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ArticleGroupRelationsCompanion.insert({
+    required String articleId,
+    required String groupId,
+    this.rowid = const Value.absent(),
+  }) : articleId = Value(articleId),
+       groupId = Value(groupId);
+  static Insertable<ArticleGroupRelation> custom({
+    Expression<String>? articleId,
+    Expression<String>? groupId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (articleId != null) 'article_id': articleId,
+      if (groupId != null) 'group_id': groupId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ArticleGroupRelationsCompanion copyWith({
+    Value<String>? articleId,
+    Value<String>? groupId,
+    Value<int>? rowid,
+  }) {
+    return ArticleGroupRelationsCompanion(
+      articleId: articleId ?? this.articleId,
+      groupId: groupId ?? this.groupId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (articleId.present) {
+      map['article_id'] = Variable<String>(articleId.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArticleGroupRelationsCompanion(')
+          ..write('articleId: $articleId, ')
+          ..write('groupId: $groupId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ArticlesTable articles = $ArticlesTable(this);
   late final $GroupsTable groups = $GroupsTable(this);
+  late final $ArticleGroupRelationsTable articleGroupRelations =
+      $ArticleGroupRelationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [articles, groups];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    articles,
+    groups,
+    articleGroupRelations,
+  ];
 }
 
 typedef $$ArticlesTableCreateCompanionBuilder =
@@ -604,6 +836,39 @@ typedef $$ArticlesTableUpdateCompanionBuilder =
       Value<String?> ogpImageUrl,
       Value<int> rowid,
     });
+
+final class $$ArticlesTableReferences
+    extends BaseReferences<_$AppDatabase, $ArticlesTable, Article> {
+  $$ArticlesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<
+    $ArticleGroupRelationsTable,
+    List<ArticleGroupRelation>
+  >
+  _articleGroupRelationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.articleGroupRelations,
+        aliasName: $_aliasNameGenerator(
+          db.articles.id,
+          db.articleGroupRelations.articleId,
+        ),
+      );
+
+  $$ArticleGroupRelationsTableProcessedTableManager
+  get articleGroupRelationsRefs {
+    final manager = $$ArticleGroupRelationsTableTableManager(
+      $_db,
+      $_db.articleGroupRelations,
+    ).filter((f) => f.articleId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _articleGroupRelationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$ArticlesTableFilterComposer
     extends Composer<_$AppDatabase, $ArticlesTable> {
@@ -638,6 +903,32 @@ class $$ArticlesTableFilterComposer
     column: $table.ogpImageUrl,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> articleGroupRelationsRefs(
+    Expression<bool> Function($$ArticleGroupRelationsTableFilterComposer f) f,
+  ) {
+    final $$ArticleGroupRelationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.articleGroupRelations,
+          getReferencedColumn: (t) => t.articleId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleGroupRelationsTableFilterComposer(
+                $db: $db,
+                $table: $db.articleGroupRelations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$ArticlesTableOrderingComposer
@@ -700,6 +991,32 @@ class $$ArticlesTableAnnotationComposer
     column: $table.ogpImageUrl,
     builder: (column) => column,
   );
+
+  Expression<T> articleGroupRelationsRefs<T extends Object>(
+    Expression<T> Function($$ArticleGroupRelationsTableAnnotationComposer a) f,
+  ) {
+    final $$ArticleGroupRelationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.articleGroupRelations,
+          getReferencedColumn: (t) => t.articleId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleGroupRelationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.articleGroupRelations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$ArticlesTableTableManager
@@ -713,9 +1030,9 @@ class $$ArticlesTableTableManager
           $$ArticlesTableAnnotationComposer,
           $$ArticlesTableCreateCompanionBuilder,
           $$ArticlesTableUpdateCompanionBuilder,
-          (Article, BaseReferences<_$AppDatabase, $ArticlesTable, Article>),
+          (Article, $$ArticlesTableReferences),
           Article,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool articleGroupRelationsRefs})
         > {
   $$ArticlesTableTableManager(_$AppDatabase db, $ArticlesTable table)
     : super(
@@ -761,9 +1078,44 @@ class $$ArticlesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ArticlesTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({articleGroupRelationsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (articleGroupRelationsRefs) db.articleGroupRelations,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (articleGroupRelationsRefs)
+                    await $_getPrefetchedData<
+                      Article,
+                      $ArticlesTable,
+                      ArticleGroupRelation
+                    >(
+                      currentTable: table,
+                      referencedTable: $$ArticlesTableReferences
+                          ._articleGroupRelationsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$ArticlesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).articleGroupRelationsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.articleId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -778,9 +1130,9 @@ typedef $$ArticlesTableProcessedTableManager =
       $$ArticlesTableAnnotationComposer,
       $$ArticlesTableCreateCompanionBuilder,
       $$ArticlesTableUpdateCompanionBuilder,
-      (Article, BaseReferences<_$AppDatabase, $ArticlesTable, Article>),
+      (Article, $$ArticlesTableReferences),
       Article,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool articleGroupRelationsRefs})
     >;
 typedef $$GroupsTableCreateCompanionBuilder =
     GroupsCompanion Function({
@@ -794,6 +1146,39 @@ typedef $$GroupsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<int> rowid,
     });
+
+final class $$GroupsTableReferences
+    extends BaseReferences<_$AppDatabase, $GroupsTable, Group> {
+  $$GroupsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<
+    $ArticleGroupRelationsTable,
+    List<ArticleGroupRelation>
+  >
+  _articleGroupRelationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.articleGroupRelations,
+        aliasName: $_aliasNameGenerator(
+          db.groups.id,
+          db.articleGroupRelations.groupId,
+        ),
+      );
+
+  $$ArticleGroupRelationsTableProcessedTableManager
+  get articleGroupRelationsRefs {
+    final manager = $$ArticleGroupRelationsTableTableManager(
+      $_db,
+      $_db.articleGroupRelations,
+    ).filter((f) => f.groupId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _articleGroupRelationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$GroupsTableFilterComposer
     extends Composer<_$AppDatabase, $GroupsTable> {
@@ -813,6 +1198,32 @@ class $$GroupsTableFilterComposer
     column: $table.name,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> articleGroupRelationsRefs(
+    Expression<bool> Function($$ArticleGroupRelationsTableFilterComposer f) f,
+  ) {
+    final $$ArticleGroupRelationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.articleGroupRelations,
+          getReferencedColumn: (t) => t.groupId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleGroupRelationsTableFilterComposer(
+                $db: $db,
+                $table: $db.articleGroupRelations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$GroupsTableOrderingComposer
@@ -849,6 +1260,32 @@ class $$GroupsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  Expression<T> articleGroupRelationsRefs<T extends Object>(
+    Expression<T> Function($$ArticleGroupRelationsTableAnnotationComposer a) f,
+  ) {
+    final $$ArticleGroupRelationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.articleGroupRelations,
+          getReferencedColumn: (t) => t.groupId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleGroupRelationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.articleGroupRelations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$GroupsTableTableManager
@@ -862,9 +1299,9 @@ class $$GroupsTableTableManager
           $$GroupsTableAnnotationComposer,
           $$GroupsTableCreateCompanionBuilder,
           $$GroupsTableUpdateCompanionBuilder,
-          (Group, BaseReferences<_$AppDatabase, $GroupsTable, Group>),
+          (Group, $$GroupsTableReferences),
           Group,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool articleGroupRelationsRefs})
         > {
   $$GroupsTableTableManager(_$AppDatabase db, $GroupsTable table)
     : super(
@@ -890,9 +1327,42 @@ class $$GroupsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => GroupsCompanion.insert(id: id, name: name, rowid: rowid),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) =>
+                    (e.readTable(table), $$GroupsTableReferences(db, table, e)),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({articleGroupRelationsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (articleGroupRelationsRefs) db.articleGroupRelations,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (articleGroupRelationsRefs)
+                    await $_getPrefetchedData<
+                      Group,
+                      $GroupsTable,
+                      ArticleGroupRelation
+                    >(
+                      currentTable: table,
+                      referencedTable: $$GroupsTableReferences
+                          ._articleGroupRelationsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$GroupsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).articleGroupRelationsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.groupId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -907,9 +1377,385 @@ typedef $$GroupsTableProcessedTableManager =
       $$GroupsTableAnnotationComposer,
       $$GroupsTableCreateCompanionBuilder,
       $$GroupsTableUpdateCompanionBuilder,
-      (Group, BaseReferences<_$AppDatabase, $GroupsTable, Group>),
+      (Group, $$GroupsTableReferences),
       Group,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool articleGroupRelationsRefs})
+    >;
+typedef $$ArticleGroupRelationsTableCreateCompanionBuilder =
+    ArticleGroupRelationsCompanion Function({
+      required String articleId,
+      required String groupId,
+      Value<int> rowid,
+    });
+typedef $$ArticleGroupRelationsTableUpdateCompanionBuilder =
+    ArticleGroupRelationsCompanion Function({
+      Value<String> articleId,
+      Value<String> groupId,
+      Value<int> rowid,
+    });
+
+final class $$ArticleGroupRelationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ArticleGroupRelationsTable,
+          ArticleGroupRelation
+        > {
+  $$ArticleGroupRelationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ArticlesTable _articleIdTable(_$AppDatabase db) =>
+      db.articles.createAlias(
+        $_aliasNameGenerator(
+          db.articleGroupRelations.articleId,
+          db.articles.id,
+        ),
+      );
+
+  $$ArticlesTableProcessedTableManager get articleId {
+    final $_column = $_itemColumn<String>('article_id')!;
+
+    final manager = $$ArticlesTableTableManager(
+      $_db,
+      $_db.articles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_articleIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $GroupsTable _groupIdTable(_$AppDatabase db) => db.groups.createAlias(
+    $_aliasNameGenerator(db.articleGroupRelations.groupId, db.groups.id),
+  );
+
+  $$GroupsTableProcessedTableManager get groupId {
+    final $_column = $_itemColumn<String>('group_id')!;
+
+    final manager = $$GroupsTableTableManager(
+      $_db,
+      $_db.groups,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_groupIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ArticleGroupRelationsTableFilterComposer
+    extends Composer<_$AppDatabase, $ArticleGroupRelationsTable> {
+  $$ArticleGroupRelationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ArticlesTableFilterComposer get articleId {
+    final $$ArticlesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.articleId,
+      referencedTable: $db.articles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ArticlesTableFilterComposer(
+            $db: $db,
+            $table: $db.articles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GroupsTableFilterComposer get groupId {
+    final $$GroupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.groups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GroupsTableFilterComposer(
+            $db: $db,
+            $table: $db.groups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ArticleGroupRelationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ArticleGroupRelationsTable> {
+  $$ArticleGroupRelationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ArticlesTableOrderingComposer get articleId {
+    final $$ArticlesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.articleId,
+      referencedTable: $db.articles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ArticlesTableOrderingComposer(
+            $db: $db,
+            $table: $db.articles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GroupsTableOrderingComposer get groupId {
+    final $$GroupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.groups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GroupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.groups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ArticleGroupRelationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ArticleGroupRelationsTable> {
+  $$ArticleGroupRelationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ArticlesTableAnnotationComposer get articleId {
+    final $$ArticlesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.articleId,
+      referencedTable: $db.articles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ArticlesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.articles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$GroupsTableAnnotationComposer get groupId {
+    final $$GroupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.groups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GroupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.groups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ArticleGroupRelationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ArticleGroupRelationsTable,
+          ArticleGroupRelation,
+          $$ArticleGroupRelationsTableFilterComposer,
+          $$ArticleGroupRelationsTableOrderingComposer,
+          $$ArticleGroupRelationsTableAnnotationComposer,
+          $$ArticleGroupRelationsTableCreateCompanionBuilder,
+          $$ArticleGroupRelationsTableUpdateCompanionBuilder,
+          (ArticleGroupRelation, $$ArticleGroupRelationsTableReferences),
+          ArticleGroupRelation,
+          PrefetchHooks Function({bool articleId, bool groupId})
+        > {
+  $$ArticleGroupRelationsTableTableManager(
+    _$AppDatabase db,
+    $ArticleGroupRelationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ArticleGroupRelationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ArticleGroupRelationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ArticleGroupRelationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> articleId = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ArticleGroupRelationsCompanion(
+                articleId: articleId,
+                groupId: groupId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String articleId,
+                required String groupId,
+                Value<int> rowid = const Value.absent(),
+              }) => ArticleGroupRelationsCompanion.insert(
+                articleId: articleId,
+                groupId: groupId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ArticleGroupRelationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({articleId = false, groupId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (articleId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.articleId,
+                                referencedTable:
+                                    $$ArticleGroupRelationsTableReferences
+                                        ._articleIdTable(db),
+                                referencedColumn:
+                                    $$ArticleGroupRelationsTableReferences
+                                        ._articleIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (groupId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.groupId,
+                                referencedTable:
+                                    $$ArticleGroupRelationsTableReferences
+                                        ._groupIdTable(db),
+                                referencedColumn:
+                                    $$ArticleGroupRelationsTableReferences
+                                        ._groupIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ArticleGroupRelationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ArticleGroupRelationsTable,
+      ArticleGroupRelation,
+      $$ArticleGroupRelationsTableFilterComposer,
+      $$ArticleGroupRelationsTableOrderingComposer,
+      $$ArticleGroupRelationsTableAnnotationComposer,
+      $$ArticleGroupRelationsTableCreateCompanionBuilder,
+      $$ArticleGroupRelationsTableUpdateCompanionBuilder,
+      (ArticleGroupRelation, $$ArticleGroupRelationsTableReferences),
+      ArticleGroupRelation,
+      PrefetchHooks Function({bool articleId, bool groupId})
     >;
 
 class $AppDatabaseManager {
@@ -919,4 +1765,6 @@ class $AppDatabaseManager {
       $$ArticlesTableTableManager(_db, _db.articles);
   $$GroupsTableTableManager get groups =>
       $$GroupsTableTableManager(_db, _db.groups);
+  $$ArticleGroupRelationsTableTableManager get articleGroupRelations =>
+      $$ArticleGroupRelationsTableTableManager(_db, _db.articleGroupRelations);
 }

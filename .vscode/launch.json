@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "KioClip (app)",
+        "cwd": "packages/app",
+        "request": "launch",
+        "type": "dart"
+      }
+    ]
+  }

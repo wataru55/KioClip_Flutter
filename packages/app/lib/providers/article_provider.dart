@@ -1,0 +1,169 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:data/data.dart' as data;
+import 'package:domain/models/article.dart' as domain;
+import 'package:app/providers/database_provider.dart';
+import 'package:app/providers/group_provider.dart';
+import 'package:app/utils/url_validator.dart';
+
+final articleListProvider = FutureProvider<List<domain.Article>>((ref) async {
+  final db = ref.watch(databaseProvider);
+
+  return data.ArticleRepository.getAllArticles(db);
+});
+
+/// グループIDでフィルタリングした記事一覧を取得するProvider
+final groupArticleListProvider =
+    FutureProvider.family<List<domain.Article>, String>((ref, groupId) async {
+      final db = ref.watch(databaseProvider);
+
+      // ★★★ Repository経由で取得 ★★★
+      return data.ArticleRepository.getArticlesByGroupId(db, groupId);
+    });
+
+final articleNotifierProvider = AsyncNotifierProvider<ArticleNotifier, void>(
+  ArticleNotifier.new,
+);
+
+final ogpRepositoryProvider = Provider<data.OgpRepository>((ref) {
+  return data.OgpRepository();
+});
+
+class ArticleNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> addArticle(String urlString, {String? groupId}) async {
+    // 処理開始(ローディング)
+    state = const AsyncValue.loading();
+
+    try {
+      // urlStringのバリデーション
+      final errorMessage = validateUrl(urlString);
+      if (errorMessage != null) {
+        throw Exception(errorMessage);
+      }
+
+      final db = ref.read(databaseProvider);
+      final ogpRepository = ref.read(ogpRepositoryProvider);
+
+      // domain層のモデルを作成（OGPなしで一旦作成）
+      final domainArticle = domain.Article.create(urlString: urlString);
+
+      // OGPリポジトリからOGP情報を取得
+      final ogp = await ogpRepository.fetchOgp(urlString);
+
+      // OGP情報を含めてArticleを作成し直す
+      final articleWithOgp = domainArticle.copyWith(ogp: ogp);
+
+      final dataArticleCompanion = articleWithOgp.toDataModel();
+
+      // グループIDが指定されている場合、記事insertと関連insertをトランザクションでまとめる
+      if (groupId != null) {
+        await db.transaction(() async {
+          await db.into(db.articles).insert(dataArticleCompanion);
+          await data.ArticleRepository.addArticleToGroups(
+            db,
+            domainArticle.id,
+            groupId,
+          );
+        });
+        ref.invalidate(groupArticleListProvider(groupId));
+        ref.invalidate(groupArticleCountMapProvider);
+      } else {
+        await db.into(db.articles).insert(dataArticleCompanion);
+      }
+
+      state = const AsyncValue.data(null);
+
+      ref.invalidate(articleListProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> addArticleToGroups(
+    String articleId,
+    List<String> groupIds,
+  ) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      await db.transaction(() async {
+        for (final groupId in groupIds) {
+          await data.ArticleRepository.addArticleToGroups(
+            db,
+            articleId,
+            groupId,
+          );
+        }
+      });
+
+      state = const AsyncValue.data(null);
+
+      ref.invalidate(articleListProvider);
+      ref.invalidate(groupListProvider);
+      for (final groupId in groupIds) {
+        ref.invalidate(groupArticleListProvider(groupId));
+      }
+      ref.invalidate(groupArticleCountMapProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  // 記事を削除する（全体一覧用: 記事本体 + 全 ArticleGroupRelations を削除）
+  Future<void> deleteArticle(String articleId) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      // 削除前に属するグループIDを取得
+      final groupIds = await data.ArticleRepository.getGroupIdsByArticleId(
+        db,
+        articleId,
+      );
+
+      await db.transaction(() async {
+        // ArticleGroupRelations を先に削除
+        await (db.delete(db.articleGroupRelations)
+              ..where((r) => r.articleId.equals(articleId)))
+            .go();
+        // 記事本体を削除
+        await (db.delete(db.articles)
+              ..where((article) => article.id.equals(articleId)))
+            .go();
+      });
+
+      state = const AsyncValue.data(null);
+
+      ref.invalidate(articleListProvider);
+      for (final groupId in groupIds) {
+        ref.invalidate(groupArticleListProvider(groupId));
+      }
+      ref.invalidate(groupArticleCountMapProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  // グループから記事を削除する（グループ詳細用: ArticleGroupRelations のみ削除）
+  Future<void> removeArticleFromGroup(String articleId, String groupId) async {
+    state = const AsyncValue.loading();
+    try {
+      final db = ref.read(databaseProvider);
+
+      await (db.delete(db.articleGroupRelations)
+            ..where((r) => r.articleId.equals(articleId))
+            ..where((r) => r.groupId.equals(groupId)))
+          .go();
+
+      state = const AsyncValue.data(null);
+
+      ref.invalidate(groupArticleListProvider(groupId));
+      ref.invalidate(groupArticleCountMapProvider);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+}

@@ -15,11 +15,36 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  # ★★★ スワイプアクション用のパッケージ ★★★
+  flutter_slidable: ^3.0.1
+
+  # ★★★ ルーティング用のパッケージ ★★★
+  auto_route: ^10.2.1
+
+  domain:
+    path: ../domain
+  data:
+    path: ../data
+  components:
+    path: ../components
+
+  hooks_riverpod: ^2.6.1
+  flutter_hooks: ^0.20.5
+
+  # ★★★ アプリ内WebView表示用 ★★★
+  webview_flutter: ^4.13.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  drift: ^2.18.0
+
   flutter_lints: ^5.0.0
+
+  # ★★★ コード生成用 ★★★
+  auto_route_generator: ^10.2.6
+  build_runner: ^2.4.11
 
 flutter:
   uses-material-design: true

@@ -85,6 +85,7 @@ lib/generated_plugin_registrant.dart
 **/ios/**/DerivedData/
 **/ios/**/Icon?
 **/ios/**/Pods/
+**/ios/Podfile.lock
 **/ios/**/.symlinks/
 **/ios/**/profile
 **/ios/**/xcuserdata
@@ -102,6 +103,7 @@ lib/generated_plugin_registrant.dart
 **/ios/Runner/GeneratedPluginRegistrant.*
 
 **/macos/**/Pods/
+**/macos/Podfile.lock
 **/macos/Flutter/ephemeral/
 **/macos/Runner/GeneratedPluginRegistrant.*
 **/macos/**/Generated.xcconfig

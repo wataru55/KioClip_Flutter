@@ -1,0 +1,269 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:app/providers/article_provider.dart';
+import 'package:domain/models/article.dart' as domain;
+import 'package:domain/models/group.dart' as domain;
+import 'package:app/styles/app_styles.dart';
+import 'package:app/utils/article_utils.dart';
+import 'package:app/widgets/group_selection_sheet.dart';
+import 'package:app/router/app_router.dart';
+
+@RoutePage()
+class ArticleListScreen extends ConsumerWidget {
+  const ArticleListScreen({super.key, this.group});
+
+  final domain.Group? group;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final articleListAsyncValue = group != null
+        ? ref.watch(groupArticleListProvider(group!.id))
+        : ref.watch(articleListProvider);
+
+    // ★★★ グループ詳細画面として使われる場合はScaffoldでラップ ★★★
+    final content = articleListAsyncValue.when(
+      data: (articles) {
+        if (articles.isEmpty) {
+          return const Center(child: Text('記事がありません'));
+        }
+
+        return ListView.builder(
+          itemCount: articles.length,
+          itemBuilder: (context, index) {
+            final article = articles[index];
+            return _ArticleCard(article: article, group: group);
+          },
+        );
+      },
+      error: (error, stack) {
+        return Center(child: Text('エラーが発生しました: $error'));
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+    );
+
+    return Scaffold(body: content);
+  }
+}
+
+// ==========================================================
+// この画面専用の、プライベートなカードウィジェット
+// ==========================================================
+
+class _ArticleCard extends ConsumerWidget {
+  const _ArticleCard({required this.article, this.group});
+
+  final domain.Article article;
+  // グループコンテキスト（グループ詳細画面から呼ばれた場合にセット）
+  final domain.Group? group;
+
+  /// サムネイル画像を構築する
+  Widget _buildThumbnail() {
+    if (article.ogp?.imageUrl != null) {
+      return Image.network(
+        article.ogp!.imageUrl!,
+        width: AppStyles.articleThumbnailWidth,
+        height: AppStyles.articleThumbnailHeight,
+        fit: BoxFit.fitWidth,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder();
+        },
+      );
+    }
+    return _buildPlaceholder();
+  }
+
+  /// プレースホルダー画像を構築する
+  Widget _buildPlaceholder() {
+    return Container(
+      width: AppStyles.articleThumbnailWidth,
+      height: AppStyles.articleThumbnailHeight,
+      color: AppStyles.articleThumbnailPlaceholderColor,
+      child: const Icon(Icons.public, size: AppStyles.articleThumbnailIconSize),
+    );
+  }
+
+  /// タイトルを構築する
+  Widget _buildTitle() {
+    return Text(
+      article.ogp?.title ?? article.urlString,
+      style: const TextStyle(
+        fontSize: AppStyles.articleTitleFontSize,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 2,
+    );
+  }
+
+  /// メタデータ（ホスト名と日付）を構築する
+  Widget _buildMetadata() {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            ArticleUtils.getHostName(article.urlString),
+            style: const TextStyle(
+              fontSize: AppStyles.articleHostFontSize,
+              color: AppStyles.articleTextSecondaryColor,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+        const SizedBox(width: AppStyles.cardSpacing),
+        Text(
+          ArticleUtils.formatDate(article.createdAt),
+          style: const TextStyle(
+            fontSize: AppStyles.articleDateFontSize,
+            color: AppStyles.articleTextSecondaryColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final articleNotifier = ref.watch(articleNotifierProvider.notifier);
+
+    return Padding(
+      // ★★★ marginをSlidableの外側に移動 ★★★
+      padding: const EdgeInsets.only(bottom: AppStyles.cardMarginBottom),
+      child: Slidable(
+        startActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (_) async {
+                final isGroupContext = group != null;
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(isGroupContext ? 'グループから削除' : '記事を削除'),
+                    content: Text(
+                      isGroupContext
+                          ? 'この記事をグループから削除します。\n記事一覧からは削除されません。'
+                          : 'この記事を削除します。\nすべてのグループからも削除されます。',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('キャンセル'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        child: const Text('削除'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed != true) return;
+
+                // グループコンテキストがある場合はグループから削除、なければ記事本体を削除
+                if (isGroupContext) {
+                  await articleNotifier.removeArticleFromGroup(
+                    article.id,
+                    group!.id,
+                  );
+                } else {
+                  await articleNotifier.deleteArticle(article.id);
+                }
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isGroupContext ? 'グループから削除しました' : '記事を削除しました',
+                      ),
+                    ),
+                  );
+                }
+              },
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              icon: Icons.delete,
+            ),
+          ],
+        ),
+        endActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (context) {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  builder: (context) => GroupSelectionSheet(
+                    onGroupsSelected: (groupIds) async {
+                      await articleNotifier.addArticleToGroups(
+                        article.id,
+                        groupIds,
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('グループに追加しました')),
+                        );
+                      }
+                    },
+                  ),
+                );
+              },
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              icon: Icons.folder,
+            ),
+
+            SlidableAction(
+              onPressed: (context) {
+                // TODO: 通知設定の処理を実装
+              },
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              icon: Icons.notifications,
+            ),
+          ],
+        ),
+        child: InkWell(
+          onTap: () {
+            context.router.push(ArticleWebviewRoute(
+              url: article.urlString,
+              title: article.ogp?.title,
+            ));
+          },
+          child: Card(
+          // ★★★ Cardのmarginを削除 ★★★
+          margin: EdgeInsets.zero,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildThumbnail(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppStyles.edgeAllPadding),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTitle(),
+                      const SizedBox(height: AppStyles.cardSpacing),
+                      _buildMetadata(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        ),
+      ),
+    );
+  }
+}
