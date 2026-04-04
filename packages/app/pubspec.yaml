@@ -31,6 +31,9 @@ dependencies:
   hooks_riverpod: ^2.6.1
   flutter_hooks: ^0.20.5
 
+  # ★★★ アプリ内WebView表示用 ★★★
+  webview_flutter: ^4.13.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

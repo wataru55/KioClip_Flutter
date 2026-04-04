@@ -57,6 +57,56 @@ class ArticleListRouteArgs {
 }
 
 /// generated route for
+/// [ArticleWebviewScreen]
+class ArticleWebviewRoute extends PageRouteInfo<ArticleWebviewRouteArgs> {
+  ArticleWebviewRoute({
+    Key? key,
+    required String url,
+    String? title,
+    List<PageRouteInfo>? children,
+  }) : super(
+         ArticleWebviewRoute.name,
+         args: ArticleWebviewRouteArgs(key: key, url: url, title: title),
+         initialChildren: children,
+       );
+
+  static const String name = 'ArticleWebviewRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<ArticleWebviewRouteArgs>();
+      return ArticleWebviewScreen(key: args.key, url: args.url);
+    },
+  );
+}
+
+class ArticleWebviewRouteArgs {
+  const ArticleWebviewRouteArgs({this.key, required this.url, this.title});
+
+  final Key? key;
+
+  final String url;
+
+  final String? title;
+
+  @override
+  String toString() {
+    return 'ArticleWebviewRouteArgs{key: $key, url: $url, title: $title}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ArticleWebviewRouteArgs) return false;
+    return key == other.key && url == other.url && title == other.title;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ url.hashCode ^ title.hashCode;
+}
+
+/// generated route for
 /// [GroupArticleDetailsScreen]
 class GroupArticleDetailsRoute
     extends PageRouteInfo<GroupArticleDetailsRouteArgs> {

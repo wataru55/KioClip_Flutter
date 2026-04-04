@@ -8,6 +8,7 @@ import 'package:domain/models/group.dart' as domain;
 import 'package:app/styles/app_styles.dart';
 import 'package:app/utils/article_utils.dart';
 import 'package:app/widgets/group_selection_sheet.dart';
+import 'package:app/router/app_router.dart';
 
 @RoutePage()
 class ArticleListScreen extends ConsumerWidget {
@@ -228,7 +229,14 @@ class _ArticleCard extends ConsumerWidget {
             ),
           ],
         ),
-        child: Card(
+        child: InkWell(
+          onTap: () {
+            context.router.push(ArticleWebviewRoute(
+              url: article.urlString,
+              title: article.ogp?.title,
+            ));
+          },
+          child: Card(
           // ★★★ Cardのmarginを削除 ★★★
           margin: EdgeInsets.zero,
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -253,6 +261,7 @@ class _ArticleCard extends ConsumerWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

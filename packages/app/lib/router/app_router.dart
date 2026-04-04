@@ -4,6 +4,7 @@ import 'package:app/screens/home_screen.dart';
 import 'package:app/screens/group_list_screen.dart';
 import 'package:app/screens/article_list_screen.dart';
 import 'package:app/screens/group_article_details_screen.dart';
+import 'package:app/screens/article_webview_screen.dart';
 import 'package:domain/models/group.dart';
 
 part 'app_router.gr.dart';
@@ -12,6 +13,7 @@ part 'app_router.gr.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
+    AutoRoute(page: ArticleWebviewRoute.page),
     AutoRoute(
       page: HomeRoute.page,
       initial: true,
