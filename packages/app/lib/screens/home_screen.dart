@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:app/router/app_router.dart';
 import 'package:app/widgets/add_group_modal.dart';
 import 'package:app/widgets/add_article_modal.dart';
 import 'package:app/widgets/stacked_fab.dart';
+import 'package:app/providers/group_provider.dart';
 
 @RoutePage()
-class HomeScreen extends HookWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AutoTabsScaffold(
       routes: [const GroupTabRoute(), ArticleListRoute()],
-      appBarBuilder: _buildAppBar,
+      appBarBuilder: (context, tabsRouter) {
+        return _buildAppBar(context, tabsRouter, ref);
+      },
       bottomNavigationBuilder: _buildBottomNavigationBar,
       floatingActionButtonBuilder: _buildFloatingActionButton,
     );
@@ -23,8 +26,12 @@ class HomeScreen extends HookWidget {
   PreferredSizeWidget _buildAppBar(
     BuildContext context,
     TabsRouter tabsRouter,
+    WidgetRef ref,
   ) {
     final topRoute = tabsRouter.topRoute;
+    final isGroupListRoute =
+        tabsRouter.activeIndex == 0 && topRoute.name == GroupListRoute.name;
+    final isEditMode = ref.watch(groupEditModeProvider);
 
     if (topRoute.name == GroupArticleDetailsRoute.name) {
       final args = topRoute.argsAs<GroupArticleDetailsRouteArgs>();
@@ -34,7 +41,26 @@ class HomeScreen extends HookWidget {
       );
     }
 
-    return AppBar(title: const Text('KioClip'));
+    return AppBar(
+      title: const Text('KioClip'),
+      actions: isGroupListRoute
+          ? [
+              TextButton(
+                onPressed: () {
+                  ref.read(groupEditModeProvider.notifier).state = !isEditMode;
+                },
+                child: Text(
+                  isEditMode ? '完了' : '編集',
+                  style: TextStyle(
+                    fontWeight: isEditMode
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ]
+          : null,
+    );
   }
 
   Widget _buildBottomNavigationBar(
