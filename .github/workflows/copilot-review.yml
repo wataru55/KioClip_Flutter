@@ -28,4 +28,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # PRの番号を取得し、CopilotのBotをレビュアーとして指定するコマンド
-          gh pr edit ${{ github.event.pull_request.number }} --add-reviewer copilot-pull-request-reviewer[bot]
+          gh pr edit ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --add-reviewer copilot-pull-request-reviewer[bot]
