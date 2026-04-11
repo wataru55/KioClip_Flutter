@@ -8,10 +8,14 @@ on:
   pull_request:
     branches:
       - dev
+    types: [opened, reopened, ready_for_review, synchronize]
 
 # ワークフロー内のジョブを定義
 jobs:
   build:
+    # ジョブが実行される条件（ドラフトでないプルリクエストのみ）
+    if: github.event.pull_request.draft == false
+
     # ジョブが実行される仮想環境を指定
     runs-on: ubuntu-latest
 
