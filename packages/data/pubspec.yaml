@@ -15,7 +15,7 @@ dependencies:
   # driftの本体
   drift: ^2.18.0
   # SQLiteをFlutterで動かすためのライブラリ
-  sqlite3_flutter_libs: ^0.5.24
+  sqlite3_flutter_libs: 0.5.39
   # ファイルを保存する安全な場所を見つけるための道具
   path_provider: ^2.1.3
   path: ^1.9.0
