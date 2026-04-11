@@ -1,0 +1,31 @@
+# ワークフローの名前
+name: Auto Request Copilot Review
+
+# on（必須）：ワークフローが実行される条件
+on:
+  pull_request:
+    # dev ブランチをターゲットにしたプルリクエストに限定
+    branches:
+      - dev
+    # opened: 作成時
+    # ready_for_review: ドラフトからレビュー可能になった時
+    # synchronize: PR の元ブランチに新しいコミットがプッシュ（更新）された時
+    types: [opened, ready_for_review, synchronize]
+
+# jobs：ワークフローの実際の処理内容を定義
+jobs:
+  request-review:
+    # runs-on：ジョブの実行環境を指定
+    runs-on: ubuntu-latest
+    # ActionsがPRに変更を加えるための権限設定
+    permissions:
+      pull-requests: write
+
+    # steps：ジョブ内で実行する処理を順番に記述
+    steps:
+      - name: GitHub CLIでCopilotをレビュアーに追加
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # PRの番号を取得し、CopilotのBotをレビュアーとして指定するコマンド
+          gh pr edit ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --add-reviewer @copilot
