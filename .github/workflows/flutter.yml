@@ -1,0 +1,34 @@
+name: Flutter CI/CD Pipeline
+
+# ワークフローをトリガーするイベントを定義
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+# ワークフロー内のジョブを定義
+jobs:
+  build:
+    # ジョブが実行される仮想環境を指定
+    runs-on: ubuntu-latest
+
+    # ジョブ内のステップを定義
+    steps:
+      - name: Checkout repository
+        # リポジトリをチェックアウトするアクションを使用
+        uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        # Flutterの開発環境をセットアップするアクションを使用
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test

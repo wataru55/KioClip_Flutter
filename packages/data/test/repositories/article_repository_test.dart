@@ -174,5 +174,61 @@ void main() {
         expect(groupIds, containsAll(['groupA', 'groupB']));
       });
     });
+
+    group('getAllGroupArticleCounts', () {
+      test('関連付けが0件のとき空のMapが返される', () async {
+        final counts = await ArticleRepository.getAllGroupArticleCounts(db);
+        expect(counts, isEmpty);
+      });
+
+      test('複数グループに分散した記事の件数が groupId ごとに集計される', () async {
+        final article1 = TestHelper.createArticle();
+        final article2 = TestHelper.createArticle(
+          id: 'article2',
+          url: 'https://example.com/2',
+        );
+        final article3 = TestHelper.createArticle(
+          id: 'article3',
+          url: 'https://example.com/3',
+        );
+        await TestHelper.insertArticles(db, [article1, article2, article3]);
+
+        // groupA: 2件, groupB: 1件
+        await TestHelper.addArticleToGroup(db, article1.id, 'groupA');
+        await TestHelper.addArticleToGroup(db, article2.id, 'groupA');
+        await TestHelper.addArticleToGroup(db, article3.id, 'groupB');
+
+        final counts = await ArticleRepository.getAllGroupArticleCounts(db);
+
+        expect(counts.length, 2);
+        expect(counts['groupA'], 2);
+        expect(counts['groupB'], 1);
+      });
+
+      test('同じ記事が複数グループに属していても各グループで個別にカウントされる', () async {
+        final article = TestHelper.createArticle();
+        await TestHelper.insertArticles(db, [article]);
+
+        await TestHelper.addArticleToGroup(db, article.id, 'groupA');
+        await TestHelper.addArticleToGroup(db, article.id, 'groupB');
+
+        final counts = await ArticleRepository.getAllGroupArticleCounts(db);
+
+        expect(counts['groupA'], 1);
+        expect(counts['groupB'], 1);
+      });
+
+      test('関連付けを持たないグループは戻り値の Map にキーとして含まれない', () async {
+        final article = TestHelper.createArticle();
+        await TestHelper.insertArticles(db, [article]);
+
+        await TestHelper.addArticleToGroup(db, article.id, 'groupA');
+
+        final counts = await ArticleRepository.getAllGroupArticleCounts(db);
+
+        expect(counts.containsKey('groupA'), isTrue);
+        expect(counts.containsKey('groupB'), isFalse);
+      });
+    });
   });
 }

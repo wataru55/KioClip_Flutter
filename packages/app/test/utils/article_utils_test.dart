@@ -11,7 +11,7 @@ void main() {
 
       test('正常なURLでなければ元のURLを返す', () {
         final invalidUrl = 'invalid';
-        expect(invalidUrl, 'invalid');
+        expect(ArticleUtils.getHostName(invalidUrl), 'invalid');
       });
     });
 

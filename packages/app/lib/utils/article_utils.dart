@@ -6,6 +6,9 @@ class ArticleUtils {
   static String getHostName(String urlString) {
     try {
       final uri = Uri.parse(urlString);
+      // Uri.parse はスキームやホストが欠落していても例外を投げず
+      // host が空文字の Uri を返すため、明示的にチェックする
+      if (uri.host.isEmpty) return urlString;
       return uri.host;
     } catch (e) {
       // パースに失敗した場合は元のURLを返す
