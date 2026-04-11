@@ -17,3 +17,10 @@ workspace:
 dev_dependencies:
   flutter_lints: ^5.0.0
   melos: ^7.3.0
+
+# Melos のモノレポ用スクリプト
+melos:
+  scripts:
+    test:
+      run: melos exec --dir-exists="test" -- flutter test
+      description: test ディレクトリがあるパッケージで flutter test を実行する

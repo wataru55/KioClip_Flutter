@@ -194,6 +194,89 @@ void main() {
       });
     });
 
+    group('removeArticleFromGroup', () {
+      test('指定したグループとの関連付けのみ削除され、記事本体は残る', () async {
+        const urlString = 'https://example.com/article1';
+        await container
+            .read(articleNotifierProvider.notifier)
+            .addArticle(urlString);
+        final articles = await container.read(articleListProvider.future);
+        final articleId = articles.first.id;
+
+        final groupId = await insertTestGroup(db, 'テストグループ');
+        await container
+            .read(articleNotifierProvider.notifier)
+            .addArticleToGroups(articleId, [groupId]);
+
+        await container
+            .read(articleNotifierProvider.notifier)
+            .removeArticleFromGroup(articleId, groupId);
+
+        final state = container.read(articleNotifierProvider);
+        expect(state, const AsyncValue<void>.data(null));
+
+        // グループからは消える
+        final groupArticles = await container.read(
+          groupArticleListProvider(groupId).future,
+        );
+        expect(groupArticles.isEmpty, true);
+
+        // 全体一覧には残る
+        final allArticles = await container.read(articleListProvider.future);
+        expect(allArticles.length, 1);
+        expect(allArticles.first.id, articleId);
+      });
+
+      test('指定したグループ以外との関連付けは保持される', () async {
+        const urlString = 'https://example.com/article1';
+        await container
+            .read(articleNotifierProvider.notifier)
+            .addArticle(urlString);
+        final articles = await container.read(articleListProvider.future);
+        final articleId = articles.first.id;
+
+        final groupId1 = await insertTestGroup(db, 'グループ1');
+        final groupId2 = await insertTestGroup(db, 'グループ2');
+        await container
+            .read(articleNotifierProvider.notifier)
+            .addArticleToGroups(articleId, [groupId1, groupId2]);
+
+        // groupId1 との関連付けだけ削除
+        await container
+            .read(articleNotifierProvider.notifier)
+            .removeArticleFromGroup(articleId, groupId1);
+
+        final group1Articles = await container.read(
+          groupArticleListProvider(groupId1).future,
+        );
+        final group2Articles = await container.read(
+          groupArticleListProvider(groupId2).future,
+        );
+        expect(group1Articles.isEmpty, true);
+        expect(group2Articles.length, 1);
+        expect(group2Articles.first.id, articleId);
+      });
+
+      test('関連付けが存在しない状態で呼び出してもエラーにならない', () async {
+        const urlString = 'https://example.com/article1';
+        await container
+            .read(articleNotifierProvider.notifier)
+            .addArticle(urlString);
+        final articles = await container.read(articleListProvider.future);
+        final articleId = articles.first.id;
+
+        final groupId = await insertTestGroup(db, 'テストグループ');
+
+        // 関連付けを作らずに削除を実行
+        await container
+            .read(articleNotifierProvider.notifier)
+            .removeArticleFromGroup(articleId, groupId);
+
+        final state = container.read(articleNotifierProvider);
+        expect(state, const AsyncValue<void>.data(null));
+      });
+    });
+
     group('deleteArticle', () {
       test('記事を削除するとarticleListProviderから消える', () async {
         const urlString = 'https://example.com/article1';
